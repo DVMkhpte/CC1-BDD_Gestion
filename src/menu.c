@@ -21,9 +21,11 @@ void verifFirstMenu(char *argv[]) {
             createDatabase(argv[2]);
             break;
         case '2':
+            verifFileExistW(argv[2]);
             
             break;
         case '3':
+            verifFileExistD(argv[2]);
             
             break;
         default:
