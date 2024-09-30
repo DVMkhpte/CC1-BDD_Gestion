@@ -1,7 +1,7 @@
 #ifndef MENU_H
 #define MENU_H
 
-void createMenu();
-void verifMenu();
+void createFirstMenu();
+void verifFirstMenu();
 
 #endif

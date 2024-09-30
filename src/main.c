@@ -2,6 +2,6 @@
 #include "../include/menu.h"
 
 int main() {
-    createMenu();
+    createFirstMenu();
     return 0;
 }
