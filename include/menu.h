@@ -2,6 +2,6 @@
 #define MENU_H
 
 void createFirstMenu();
-void verifFirstMenu();
+void verifFirstMenu(char *argv[]);
 
 #endif
