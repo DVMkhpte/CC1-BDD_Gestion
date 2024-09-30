@@ -14,6 +14,18 @@ void createFirstMenu() {
     printf("+-------------------------------------------------------------+-------------------------------------------------+\n");
 }
 
+void createSecondMenu() {
+    printf("+-----------------------------------------+\n");
+    printf("|            Commande possible            |\n");
+    printf("+-----------------------------------------+\n");
+    printf("| 1. INSERT                               |\n");
+    printf("| 2. SELECT                               |\n");
+    printf("| 3. DELETE                               |\n");
+    printf("| 4. UPDATE                               |\n");
+    printf("| 5. SHOW                                 |\n");
+    printf("+-----------------------------------------+\n");
+}
+
 void verifFirstMenu(char *argv[]) {
     switch (argv[1][0]) {  
         case '1':
@@ -22,7 +34,7 @@ void verifFirstMenu(char *argv[]) {
             break;
         case '2':
             verifFileExistW(argv[2]);
-            
+            createSecondMenu();
             break;
         case '3':
             verifFileExistD(argv[2]);

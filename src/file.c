@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../include/file.h"
+#include "../include/menu.h"
 
 int verifFileExist(char *filename) {
     
@@ -84,7 +85,8 @@ int createDatabase(char *filename) {
                 exit(EXIT_FAILURE);
             }
             printf("Vous utilisez maintenant la base de données %s.\n", filename);
-            x = 0; 
+            x = 0;
+            createSecondMenu(); 
         } else if (strcmp(res, "N") == 0 || strcmp(res, "n") == 0 || strcmp(res, "non") == 0 || strcmp(res, "Non") == 0 || strcmp(res, "NON") == 0) {
             return EXIT_SUCCESS; 
         } else {
