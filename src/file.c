@@ -4,12 +4,14 @@
 #include "../include/file.h"
 #include "../include/menu.h"
 
+FILE *file = NULL;
+
 int verifFileExist(char *filename) {
     
     char filepath[256]; 
     snprintf(filepath, sizeof(filepath), "../database/%s", filename);
     
-    FILE *file = fopen(filepath, "r");
+    file = fopen(filepath, "r");
 
     if (file) {
         printf("Une base de donnée existe deja sous ce nom.\n");
@@ -23,7 +25,7 @@ int verifFileExistW(char *filename) {
     char filepath[256]; 
     snprintf(filepath, sizeof(filepath), "../database/%s", filename);
     
-    FILE *file = fopen(filepath, "r");
+    file = fopen(filepath, "r");
 
     if (!file) {
         printf("Aucune base de donnée n'existe sous ce nom\n");
@@ -40,7 +42,7 @@ int verifFileExistD(char *filename) {
     char filepath[256]; 
     snprintf(filepath, sizeof(filepath), "../database/%s", filename);
     
-    FILE *file = fopen(filepath, "r");
+    file = fopen(filepath, "r");
 
     if (file) {
         if (remove(filepath) == 0) {
@@ -62,7 +64,7 @@ int createDatabase(char *filename) {
     char filepath[256]; 
     snprintf(filepath, sizeof(filepath), "../database/%s", filename);
     
-    FILE *file = fopen(filepath, "w");
+    file = fopen(filepath, "w");
 
     if (!file) {
         printf("Erreur lors de la création de la base de donnée\n");
@@ -94,4 +96,10 @@ int createDatabase(char *filename) {
         }
     }
 
+}
+
+int writeInDatabase(char *values) {
+    fprintf(file, "%s", values);
+    fclose(file);
+    return EXIT_SUCCESS;
 }

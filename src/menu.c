@@ -3,6 +3,7 @@
 #include <string.h>
 #include "../include/menu.h"
 #include "../include/file.h"
+#include "../include/sql.h"
 
 void createFirstMenu() {
     printf("+-------------------------------------------------------------+-------------------------------------------------+\n");
@@ -23,6 +24,7 @@ void createSecondMenu() {
     printf("| 3. DELETE                               |\n");
     printf("| 4. UPDATE                               |\n");
     printf("| 5. SHOW                                 |\n");
+    printf("| 6. CREATE TABLE                         |\n");
     printf("+-----------------------------------------+\n");
 }
 
@@ -35,6 +37,7 @@ void verifFirstMenu(char *argv[]) {
         case '2':
             verifFileExistW(argv[2]);
             createSecondMenu();
+            sqlEntry();
             break;
         case '3':
             verifFileExistD(argv[2]);
