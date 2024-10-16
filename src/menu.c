@@ -25,11 +25,12 @@ void createSecondMenu() {
     printf("| 4. UPDATE                               |\n");
     printf("| 5. SHOW                                 |\n");
     printf("| 6. CREATE TABLE                         |\n");
+    printf("| 7. EXIT (Quitter le programme)          |\n");
     printf("+-----------------------------------------+\n");
 }
 
 void verifFirstMenu(char *argv[]) {
-    switch (argv[1][0]) {  
+    switch (argv[1][0]) {
         case '1':
             verifFileExist(argv[2]);
             createDatabase(argv[2]);
@@ -41,7 +42,7 @@ void verifFirstMenu(char *argv[]) {
             break;
         case '3':
             verifFileExistD(argv[2]);
-            
+
             break;
         default:
             createFirstMenu();
