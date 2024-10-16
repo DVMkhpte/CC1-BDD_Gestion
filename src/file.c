@@ -3,6 +3,9 @@
 #include <string.h>
 #include "../include/file.h"
 #include "../include/menu.h"
+#include "../include/sql.h"
+#include "../include/database_structs.h"
+
 
 FILE *file = NULL;
 
@@ -86,9 +89,25 @@ int createDatabase(char *filename) {
                 printf("Erreur lors de l'ouverture de la base de données\n");
                 exit(EXIT_FAILURE);
             }
+
+            Database *db = malloc(sizeof(Database));
+            if (db == NULL) {
+                printf("Erreur lors de l'allocation de la mémoire pour la base de données.\n");
+                exit(EXIT_FAILURE);
+            }
+
+            initDatabase(db,filename);
+
             printf("Vous utilisez maintenant la base de données ' %s '.\n", filename);
             x = 0;
+
+            BinaryTree tree;
+            initBinaryTree(&tree);
+
+
             createSecondMenu();
+            sqlEntry(&tree, db);
+
         } else if (strcmp(res, "N") == 0 || strcmp(res, "n") == 0 || strcmp(res, "non") == 0 || strcmp(res, "Non") == 0 || strcmp(res, "NON") == 0) {
             return EXIT_SUCCESS;
         } else {

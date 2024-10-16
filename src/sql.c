@@ -4,8 +4,10 @@
 #include "../include/sql.h"
 #include "../include/file.h"
 #include "../include/function.h"
+#include "../include/database_structs.h"
+#include "../include/node.h"
 
-void sqlEntry() {
+void sqlEntry(BinaryTree *tree, Database *db) {
 
     int8_t x = 1;
 
@@ -23,7 +25,7 @@ void sqlEntry() {
 
         if (token != NULL) {
             if(strcmp(token, "INSERT") == 0) {
-                insert(sqlRest);
+                insert(db, sqlRest);
             } else if(strcmp(token, "SELECT") == 0) {
 
 
@@ -37,7 +39,7 @@ void sqlEntry() {
 
 
             } else if(strcmp(token, "CREATE") == 0) {
-                createTable(sqlRest);
+                createTable(tree, db, sqlRest);
             } else if(strcmp(token, "EXIT") == 0) {
                 x = 0;
             } else {
@@ -50,7 +52,8 @@ void sqlEntry() {
 }
 
 
-void insert(char *sqlRest) {
+void insert(Database *db, char *sqlRest) {
+
     char *values = strstr(sqlRest, "VALUES");
 
     if(values != NULL) {
@@ -79,7 +82,7 @@ void insert(char *sqlRest) {
 }
 
 
-void createTable(char *sqlRest) {
+void createTable(BinaryTree *tree, Database *db, char *sqlRest) {
 
     char *table = strstr(sqlRest, "TABLE");
 
@@ -93,40 +96,123 @@ void createTable(char *sqlRest) {
         char *startColumns = strstr(table, "(");
         char *endColumns = strstr(table, ")");
 
-        strncpy(tableName, table, startColumns - table);
-        tableName[startColumns - table - 1] = '\0';
+        if (startColumns != NULL && endColumns != NULL && endColumns > startColumns) {
 
-        char databaseTableName[270];
-        snprintf(databaseTableName, sizeof(databaseTableName), "table.%s", tableName);
+            strncpy(tableName, table, startColumns - table);
+            tableName[startColumns - table - 1] = '\0';
 
-
-        if (writeInDatabase(databaseTableName) != EXIT_SUCCESS) {
-            printf("Erreur lors de l'écriture du nom de la table dans la base de données.\n");
-        }
+            char databaseTableName[270];
+            snprintf(databaseTableName, sizeof(databaseTableName), "table.%s", tableName);
 
 
-        if (endColumns != NULL) {
-            startColumns++;
-            *endColumns = '\0';
+            if (writeInDatabase(databaseTableName) != EXIT_SUCCESS) {
+                printf("Erreur lors de l'écriture du nom de la table dans la base de données.\n");
+            }
 
-            char *column = strtok(startColumns, ",");
-            while (column != NULL) {
-                while (*column == ' ') column++; // On saute les espaces
-                replaceSpacesToDashes(column);
+            Node *newTableNode = createNode(TABLE_NODE); // On creer un nouveau node de TABLE
+            strcpy(newTableNode->tableData.tableName, tableName); // On y met la nom de la table
+            newTableNode->tableData.columns = NULL;
+            newTableNode->tableData.columnCount = 0;
+            db->tableCount++;
 
-                char databaseColumn[256];
-                snprintf(databaseColumn, sizeof(databaseColumn), "column.%s.%s", tableName,column);
+            insertNode(tree, newTableNode); // On l'insert dans l'arbre
 
-                if (writeInDatabase(databaseColumn) != EXIT_SUCCESS) {
-                    printf("Erreur lors de l'écriture des colonnes de la table dans la base de données.\n");
+            //displayNode(newTableNode);
+
+            if (endColumns != NULL) {
+                startColumns++;
+                *endColumns = '\0';
+
+                char *column = strtok(startColumns, ",");
+                while (column != NULL) {
+                    while (*column == ' ') column++; // On saute les espaces
+                    replaceSpacesToDashes(column);
+
+                    char databaseColumn[256];
+                    snprintf(databaseColumn, sizeof(databaseColumn), "column.%s.%s", tableName,column);
+
+                    if (writeInDatabase(databaseColumn) != EXIT_SUCCESS) {
+                        printf("Erreur lors de l'écriture des colonnes de la table dans la base de données.\n");
+                    }
+
+                    char *dashPosition = strstr(databaseColumn, "-");
+                    if (dashPosition != NULL) {
+                        char columnName[100], columnType[100];
+                        strncpy(columnName, databaseColumn, dashPosition - databaseColumn);
+                        columnName[dashPosition - databaseColumn] = '\0';
+
+                        strcpy(columnType, dashPosition + 1);
+
+
+                        Node *newColumnNode = createNode(COLUMN_NODE);
+                        strcpy(newColumnNode->columnData.columnName, columnName);
+                        strcpy(newColumnNode->columnData.type, columnType);
+                        newColumnNode->columnData.values = NULL;
+
+
+                        newTableNode->tableData.columns = realloc(newTableNode->tableData.columns, sizeof(Column) * (newTableNode->tableData.columnCount + 1));
+                        newTableNode->tableData.columns[newTableNode->tableData.columnCount] = newColumnNode->columnData;
+                        newTableNode->tableData.columnCount++;
+
+                        insertNode(tree, newColumnNode);
+
+                        // displayNode(newColumnNode);
+
+                        column = strtok(NULL, ","); // On récupère la prochaine colonne
+                    }
+
                 }
 
-                column = strtok(NULL, ","); // On récupère la prochaine colonne
+                //displayTree(tree);
+
+
+            }else {
+                printf("Valeur non trouvée ou mal formatée.\n");
             }
-        }else {
-            printf("Valeur non trouvée ou mal formatée.\n");
+        }else{
+            printf("Requete non trouvée ou mal formatée.\n");
         }
     }else{
         printf("TABLE non trouvé dans la requête.\n");
     }
 }
+
+
+/* void delete(char *sqlRest) {
+
+    char *from = strstr(sqlRest, "FROM");
+
+    if(from != NULL) {
+        from += strlen("FROM");
+        while (*from == ' ') {
+            from++;
+        }
+
+        char tableName[256];
+        char *endTableName = strstr(from, "WHERE");
+
+        int8_t allData = 0;
+
+        if (endTableName == NULL) {
+            allData = 1; // Vu que il n'y a pas de WHERE toute les donnée de la table seront suprimmer
+            endTableName = from + strlen(from); // On va a la fin de la chaine
+        }
+
+        strncpy(tableName, from, endTableName - from);
+        tableName[endTableName - from - 1] = '\0';
+
+        if (allData){
+
+        }else{
+
+        }
+
+
+
+        printf("%s\n",from);
+        printf("%s",tableName);
+
+    }
+}
+
+*/

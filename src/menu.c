@@ -5,6 +5,7 @@
 #include "../include/file.h"
 #include "../include/sql.h"
 
+
 void createFirstMenu() {
     printf("+-------------------------------------------------------------+-------------------------------------------------+\n");
     printf("|                     Premier argument                        |                 Second argument                 |\n");
@@ -38,7 +39,9 @@ void verifFirstMenu(char *argv[]) {
         case '2':
             verifFileExistW(argv[2]);
             createSecondMenu();
-            sqlEntry();
+            Database *db = NULL;
+            BinaryTree *tree = NULL;
+            sqlEntry(tree,db);
             break;
         case '3':
             verifFileExistD(argv[2]);
