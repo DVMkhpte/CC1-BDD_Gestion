@@ -3,6 +3,7 @@
 #include <string.h>
 #include "../include/sql.h"
 #include "../include/file.h"
+#include "../include/function.h"
 
 void sqlEntry() {
 
@@ -35,8 +36,8 @@ void sqlEntry() {
             } else if(strcmp(token, "SHOW") == 0) {
 
 
-            } else if(strcmp(token, "CREATE TABLE") == 0) {
-
+            } else if(strcmp(token, "CREATE") == 0) {
+                createTable(sqlRest);
             } else if(strcmp(token, "EXIT") == 0) {
                 x = 0;
             } else {
@@ -62,11 +63,11 @@ void insert(char *sqlRest) {
 
 
             value[endValue - startValue - 1] = '\0';
-            char databaseValue[256];
+            char databaseValue[270];
             snprintf(databaseValue, sizeof(databaseValue), "values.%s", value);
 
             if (writeInDatabase(databaseValue) != EXIT_SUCCESS) {
-                printf("Erreur lors de l'écriture dans la base de données.\n");
+                printf("Erreur lors de l'écriture des valeurs dans la base de données.\n");
             }
         } else {
             printf("Valeur non trouvée ou mal formatée.\n");
@@ -74,5 +75,58 @@ void insert(char *sqlRest) {
 
     }else{
         printf("VALUES non trouvé dans la requête.\n");
+    }
+}
+
+
+void createTable(char *sqlRest) {
+
+    char *table = strstr(sqlRest, "TABLE");
+
+    if(table != NULL) {
+        table += strlen("TABLE");
+        while (*table == ' ') {
+            table++;
+        }
+
+        char tableName[256];
+        char *startColumns = strstr(table, "(");
+        char *endColumns = strstr(table, ")");
+
+        strncpy(tableName, table, startColumns - table);
+        tableName[startColumns - table - 1] = '\0';
+
+        char databaseTableName[270];
+        snprintf(databaseTableName, sizeof(databaseTableName), "table.%s", tableName);
+
+
+        if (writeInDatabase(databaseTableName) != EXIT_SUCCESS) {
+            printf("Erreur lors de l'écriture du nom de la table dans la base de données.\n");
+        }
+
+
+        if (endColumns != NULL) {
+            startColumns++;
+            *endColumns = '\0';
+
+            char *column = strtok(startColumns, ",");
+            while (column != NULL) {
+                while (*column == ' ') column++; // On saute les espaces
+                replaceSpacesToDashes(column);
+
+                char databaseColumn[256];
+                snprintf(databaseColumn, sizeof(databaseColumn), "column.%s.%s", tableName,column);
+
+                if (writeInDatabase(databaseColumn) != EXIT_SUCCESS) {
+                    printf("Erreur lors de l'écriture des colonnes de la table dans la base de données.\n");
+                }
+
+                column = strtok(NULL, ","); // On récupère la prochaine colonne
+            }
+        }else {
+            printf("Valeur non trouvée ou mal formatée.\n");
+        }
+    }else{
+        printf("TABLE non trouvé dans la requête.\n");
     }
 }
