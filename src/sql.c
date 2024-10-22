@@ -25,7 +25,7 @@ void sqlEntry(BinaryTree *tree, Database *db) {
 
         if (token != NULL) {
             if(strcmp(token, "INSERT") == 0) {
-                insert(db, sqlRest);
+                insert(tree, db, sqlRest);
             } else if(strcmp(token, "SELECT") == 0) {
 
 
@@ -52,11 +52,105 @@ void sqlEntry(BinaryTree *tree, Database *db) {
 }
 
 
-void insert(Database *db, char *sqlRest) {
+void insert(BinaryTree *tree, Database *db, char *sqlRest) {
 
+    char *table = strstr(sqlRest, "INTO");
     char *values = strstr(sqlRest, "VALUES");
 
-    if(values != NULL) {
+    if(table != NULL && values != NULL) {
+
+        table += strlen("TABLE");
+        while (*table == ' ') {
+            table++;
+        }
+
+        char tableName[256];
+        char *startTable = strstr(table, "(");
+
+        if (startTable != NULL) {
+            strncpy(tableName, table, startTable - table - 1);
+            tableName[startTable - table - 1] = '\0';
+
+            Node *current = tree->root;
+            int8_t x = 0;
+
+            printf("Table à vérifier : %s\n", tableName);
+
+            printf("Table actuelle : %s\n", current ? current->tableData.tableName : "NULL");
+
+            while (current != NULL) {
+                if (strcmp(current->tableData.tableName, tableName) == 0) {
+                    x = 1;
+                    break;
+                }
+                if (strcmp(tableName, current->tableData.tableName) < 0) {
+                    current = current->left;
+                    printf("Table gauche : %s\n", current ? current->tableData.tableName : "NULL");
+                } else {
+                    current = current->right;
+                    printf("Table droite : %s\n", current ? current->tableData.tableName : "NULL");
+                }
+            }
+
+            if (!x) {
+                printf("Erreur : La table %s n'existe pas.\n", tableName);
+                return;
+            }
+
+            Node *colCurrent = current->left;
+
+            printf("Colonne actuelle : %s\n", colCurrent ? colCurrent->columnData.columnName : "NULL");
+
+            if (colCurrent == NULL){  // Si a gauche c'est vide a droite non
+                colCurrent = traverseBack(colCurrent);
+            }
+
+            char *startColumns = startTable + 1;
+            char *endColumns = strstr(startColumns, ")");
+
+            if (endColumns != NULL && endColumns > startColumns) {
+                char columnNames[256];
+                strncpy(columnNames, startColumns, endColumns - startColumns);
+                columnNames[endColumns - startColumns] = '\0';
+
+                char *column = strtok(columnNames, ",");
+                while (column != NULL) {
+                    while (*column == ' ') column++;
+
+                    printf("Colonne à vérifier : %s\n", column);
+
+
+
+                    printf("Colonne actuelle : %s\n", colCurrent ? colCurrent->columnData.columnName : "NULL");
+
+                    int8_t x = 0;
+                    while (colCurrent != NULL) {
+                        if (strcmp(colCurrent->columnData.columnName, column) == 0) {
+                            x = 1;
+                            break;
+                        }
+                        if (strcmp(column, colCurrent->columnData.columnName) < 0) {
+                            colCurrent = colCurrent->left;
+                            printf("Colonne gauche : %s\n", colCurrent ? colCurrent->columnData.columnName : "NULL");
+                        } else {
+                            colCurrent = colCurrent->right;
+                            printf("Colonne droite : %s\n", colCurrent ? colCurrent->columnData.columnName : "NULL");
+                        }
+                    }
+
+                    if (!x) {
+                        printf("Erreur : La colonne %s n'existe pas dans la table %s.\n", column, tableName);
+                        return;
+                    }
+
+                    column = strtok(NULL, ",");
+                }
+
+            }
+
+        }
+
+
         char *startValue = strstr(values, "(");
         char *endValue = strstr(values, ")");
 
@@ -164,7 +258,7 @@ void createTable(BinaryTree *tree, Database *db, char *sqlRest) {
                 }
 
                 //displayTree(tree);
-
+                //generateGraph(tree);
 
             }else {
                 printf("Valeur non trouvée ou mal formatée.\n");
