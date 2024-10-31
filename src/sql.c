@@ -7,6 +7,7 @@
 #include "../include/database_structs.h"
 #include "../include/node.h"
 
+
 void sqlEntry(BinaryTree *tree, Database *db) {
 
     int8_t x = 1;
@@ -53,13 +54,11 @@ void sqlEntry(BinaryTree *tree, Database *db) {
 
 
 void insert(BinaryTree *tree, Database *db, char *sqlRest) {
-
     char *table = strstr(sqlRest, "INTO");
     char *values = strstr(sqlRest, "VALUES");
 
-    if(table != NULL && values != NULL) {
-
-        table += strlen("TABLE");
+    if (table != NULL && values != NULL) {
+        table += strlen("INTO");
         while (*table == ' ') {
             table++;
         }
@@ -71,42 +70,42 @@ void insert(BinaryTree *tree, Database *db, char *sqlRest) {
             strncpy(tableName, table, startTable - table - 1);
             tableName[startTable - table - 1] = '\0';
 
+            char nameOfTableKey[256]; 
+            snprintf(nameOfTableKey, sizeof(nameOfTableKey), "table.%s", tableName);
+
+            long tableKey = createKey(nameOfTableKey); 
+
             Node *current = tree->root;
-            int8_t x = 0;
-
-            printf("Table à vérifier : %s\n", tableName);
-
-            printf("Table actuelle : %s\n", current ? current->tableData.tableName : "NULL");
-
+            int8_t tableExists = 0;
+            
             while (current != NULL) {
-                if (strcmp(current->tableData.tableName, tableName) == 0) {
-                    x = 1;
+                if (current->tableData.key == tableKey) {
+                    tableExists = 1;
                     break;
                 }
-                if (strcmp(tableName, current->tableData.tableName) < 0) {
+                if (tableKey < current->tableData.key) {
                     current = current->left;
-                    printf("Table gauche : %s\n", current ? current->tableData.tableName : "NULL");
                 } else {
                     current = current->right;
-                    printf("Table droite : %s\n", current ? current->tableData.tableName : "NULL");
                 }
             }
 
-            if (!x) {
+            if (!tableExists) {
                 printf("Erreur : La table %s n'existe pas.\n", tableName);
                 return;
             }
 
-            Node *colCurrent = current->left;
-
-            printf("Colonne actuelle : %s\n", colCurrent ? colCurrent->columnData.columnName : "NULL");
-
-            if (colCurrent == NULL){  // Si a gauche c'est vide a droite non
-                colCurrent = traverseBack(colCurrent);
-            }
-
             char *startColumns = startTable + 1;
             char *endColumns = strstr(startColumns, ")");
+
+            char **columns = malloc(1 * sizeof(char*));
+            if (columns == NULL) {
+                printf("Échec de l'allocation de mémoire");
+                return EXIT_FAILURE;
+            }   
+
+              int8_t columnCount = 0;
+              int8_t size = 1;
 
             if (endColumns != NULL && endColumns > startColumns) {
                 char columnNames[256];
@@ -117,62 +116,109 @@ void insert(BinaryTree *tree, Database *db, char *sqlRest) {
                 while (column != NULL) {
                     while (*column == ' ') column++;
 
-                    printf("Colonne à vérifier : %s\n", column);
+                    if (columnCount >= size) {
+                        size *= 2; 
+                        columns = realloc(columns, size * sizeof(char*));
+                    if (columns == NULL) {
+                        printf("Échec de la réallocation de mémoire");
+                        return EXIT_FAILURE;
+                    }
+                }
 
+                columns[columnCount] = strdup(column); 
+                columnCount++; 
+                for (int i = 0; i < columnCount; i++) {
+                    printf("Nom de colonne dans le tableau : %s\n", columns[i]);
+                }
+                
 
+                
 
-                    printf("Colonne actuelle : %s\n", colCurrent ? colCurrent->columnData.columnName : "NULL");
+                    char nameOfColumnKey[256]; 
+                    snprintf(nameOfColumnKey, sizeof(nameOfColumnKey), "column.%s.%s", tableName, column);
+                    
+                    long columnKey = createKey(nameOfColumnKey); 
+                    
+                    current = tree->root;
+                    int8_t columnExists = 0;
+                    
 
-                    int8_t x = 0;
-                    while (colCurrent != NULL) {
-                        if (strcmp(colCurrent->columnData.columnName, column) == 0) {
-                            x = 1;
+                    while (current != NULL) {
+                        if (current->columnData.key == columnKey) {  
+                            columnExists = 1;
                             break;
                         }
-                        if (strcmp(column, colCurrent->columnData.columnName) < 0) {
-                            colCurrent = colCurrent->left;
-                            printf("Colonne gauche : %s\n", colCurrent ? colCurrent->columnData.columnName : "NULL");
+                        if (columnKey < current->columnData.key) {
+                            current = current->left;
                         } else {
-                            colCurrent = colCurrent->right;
-                            printf("Colonne droite : %s\n", colCurrent ? colCurrent->columnData.columnName : "NULL");
+                            current = current->right;
                         }
                     }
 
-                    if (!x) {
+                    if (!columnExists) {
                         printf("Erreur : La colonne %s n'existe pas dans la table %s.\n", column, tableName);
                         return;
                     }
 
                     column = strtok(NULL, ",");
                 }
-
             }
 
-        }
+            char *startValue = strstr(values, "(");
+            char *endValue = strstr(values, ")");
 
+            if (startValue != NULL && endValue != NULL && endValue > startValue) {
+                char values[256];
+                strncpy(values, startValue + 1, endValue - startValue - 1);
+                values[endValue - startValue - 1] = '\0';
 
-        char *startValue = strstr(values, "(");
-        char *endValue = strstr(values, ")");
+                char *value = strtok(values, ",");
 
-        if (startValue != NULL && endValue != NULL && endValue > startValue) {
-            char value[256];
-            strncpy(value, startValue + 1, endValue - startValue - 1);
+                int8_t valueCount = 0;
+                while (value != NULL) {
+                    while (*value == ' ') value++;
 
+                    char databaseValue[270];
+                    snprintf(databaseValue, sizeof(databaseValue), "values.%s.%s.%s", tableName,columns[valueCount],value);
 
-            value[endValue - startValue - 1] = '\0';
-            char databaseValue[270];
-            snprintf(databaseValue, sizeof(databaseValue), "values.%s", value);
+                    if (writeInDatabase(databaseValue) != EXIT_SUCCESS) {
+                        printf("Erreur lors de l'écriture des valeurs dans la base de données.\n");
+                    }
 
-            if (writeInDatabase(databaseValue) != EXIT_SUCCESS) {
-                printf("Erreur lors de l'écriture des valeurs dans la base de données.\n");
+                    ValueType valueType = detectValueType(value);
+                    Node *newValueNode;
+
+                    if (valueType == INT_VALUE) {
+                        int intValue = strtol(value, NULL, 10);
+                        newValueNode = createNode(VALUE_NODE, columns[valueCount], INT_VALUE, &intValue);
+                    } else if (valueType == FLOAT_VALUE) {
+                        float floatValue = strtof(value, NULL);
+                        newValueNode = createNode(VALUE_NODE, columns[valueCount], FLOAT_VALUE, &floatValue);
+                    } else if (valueType == STRING_VALUE) {
+                        newValueNode = createNode(VALUE_NODE, columns[valueCount], STRING_VALUE, value);
+                    }
+
+                    insertNode(tree,newValueNode);
+                    displayTree(tree);
+
+                   value = strtok(NULL, ",");
+                   valueCount ++;
+                }
+                
+            } else {
+                printf("Valeur non trouvée ou mal formatée.\n");
             }
-        } else {
-            printf("Valeur non trouvée ou mal formatée.\n");
+            
+            for (int i = 0; i < columnCount; i++) {
+                free(columns[i]);  
+            }
+            free(columns); 
         }
-
-    }else{
+    
+    } else {
         printf("VALUES non trouvé dans la requête.\n");
     }
+    
 }
 
 
@@ -195,7 +241,7 @@ void createTable(BinaryTree *tree, Database *db, char *sqlRest) {
             strncpy(tableName, table, startColumns - table);
             tableName[startColumns - table - 1] = '\0';
 
-            char databaseTableName[270];
+            char databaseTableName[256];
             snprintf(databaseTableName, sizeof(databaseTableName), "table.%s", tableName);
 
 
@@ -203,7 +249,7 @@ void createTable(BinaryTree *tree, Database *db, char *sqlRest) {
                 printf("Erreur lors de l'écriture du nom de la table dans la base de données.\n");
             }
 
-            Node *newTableNode = createNode(TABLE_NODE); // On creer un nouveau node de TABLE
+            Node *newTableNode = createNode(TABLE_NODE, databaseTableName, INT_VALUE, NULL); // On creer un nouveau node de TABLE
             strcpy(newTableNode->tableData.tableName, tableName); // On y met la nom de la table
             newTableNode->tableData.columns = NULL;
             newTableNode->tableData.columnCount = 0;
@@ -223,8 +269,12 @@ void createTable(BinaryTree *tree, Database *db, char *sqlRest) {
                     replaceSpacesToDashes(column);
 
                     char databaseColumn[256];
-                    snprintf(databaseColumn, sizeof(databaseColumn), "column.%s.%s", tableName,column);
-
+                    if (strlen(tableName) + strlen(column) + 8 < sizeof(databaseColumn)) {
+                        snprintf(databaseColumn, sizeof(databaseColumn), "column.%s.%s", tableName, column);
+                    } else {
+                        fprintf(stderr, "Erreur : le nom combiné de la table et de la colonne est trop long.\n");
+                    }
+                    
                     if (writeInDatabase(databaseColumn) != EXIT_SUCCESS) {
                         printf("Erreur lors de l'écriture des colonnes de la table dans la base de données.\n");
                     }
@@ -238,7 +288,7 @@ void createTable(BinaryTree *tree, Database *db, char *sqlRest) {
                         strcpy(columnType, dashPosition + 1);
 
 
-                        Node *newColumnNode = createNode(COLUMN_NODE);
+                        Node *newColumnNode = createNode(COLUMN_NODE, columnName, INT_VALUE, NULL);
                         strcpy(newColumnNode->columnData.columnName, columnName);
                         strcpy(newColumnNode->columnData.type, columnType);
                         newColumnNode->columnData.values = NULL;
@@ -250,7 +300,7 @@ void createTable(BinaryTree *tree, Database *db, char *sqlRest) {
 
                         insertNode(tree, newColumnNode);
 
-                        // displayNode(newColumnNode);
+                        //displayNode(newColumnNode);
 
                         column = strtok(NULL, ","); // On récupère la prochaine colonne
                     }

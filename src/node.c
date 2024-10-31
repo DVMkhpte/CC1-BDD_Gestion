@@ -2,8 +2,9 @@
 #include <string.h>
 #include <stdio.h>
 #include "../include/node.h"
+#include "../include/function.h"
 
-Node* createNode(NodeType type) {
+Node *createNode(NodeType type, char *name, ValueType valueType, void *data) {
     Node *newNode = (Node *)malloc(sizeof(Node));
     if (newNode == NULL) {
         printf("Erreur d'allocation de mémoire pour le nœud.\n");
@@ -12,6 +13,36 @@ Node* createNode(NodeType type) {
     newNode->type = type;
     newNode->left = NULL;
     newNode->right = NULL;
+
+    long key = createKey(name);
+    switch (type) {
+        case TABLE_NODE:
+            strncpy(newNode->tableData.tableName, name, sizeof(newNode->tableData.tableName) - 1);
+            newNode->tableData.key = key;
+            break;
+        case COLUMN_NODE:
+            strncpy(newNode->columnData.columnName, name, sizeof(newNode->columnData.columnName) - 1);
+            newNode->columnData.key = key;
+            break;
+        case VALUE_NODE:
+    
+        switch (valueType) {
+            case INT_VALUE:
+                newNode->valueData.data.intValue = *(int *)data;
+                break;
+            case FLOAT_VALUE:
+                newNode->valueData.data.floatValue = *(float *)data;
+                break;
+            case STRING_VALUE:
+                strncpy(newNode->valueData.data.stringValue, (char *)data, sizeof(newNode->valueData.data.stringValue) - 1);
+                newNode->valueData.data.stringValue[sizeof(newNode->valueData.data.stringValue) - 1] = '\0';
+            break;
+        }
+    
+            newNode->valueData.key = key;
+            break;
+    }
+
     return newNode;
 }
 
@@ -29,11 +60,10 @@ void insertNode(BinaryTree *tree, Node *newNode) {
         while (current != NULL) {
             parent = current;
 
-
+            
             switch (newNode->type) {
                 case TABLE_NODE:
-
-                    if (strcmp(newNode->tableData.tableName, current->tableData.tableName) < 0) {
+                    if (newNode->tableData.key < current->tableData.key) {
                         current = current->left;
                     } else {
                         current = current->right;
@@ -41,8 +71,7 @@ void insertNode(BinaryTree *tree, Node *newNode) {
                     break;
 
                 case COLUMN_NODE:
-
-                    if (strcmp(newNode->columnData.columnName, current->columnData.columnName) < 0) {
+                    if (newNode->columnData.key < current->columnData.key) {
                         current = current->left;
                     } else {
                         current = current->right;
@@ -50,8 +79,7 @@ void insertNode(BinaryTree *tree, Node *newNode) {
                     break;
 
                 case VALUE_NODE:
-
-                    if (strcmp(newNode->valueData.data.stringValue, current->valueData.data.stringValue) < 0) {
+                    if (newNode->valueData.key < current->valueData.key) {
                         current = current->left;
                     } else {
                         current = current->right;
@@ -60,10 +88,10 @@ void insertNode(BinaryTree *tree, Node *newNode) {
             }
         }
 
-
+        
         switch (newNode->type) {
             case TABLE_NODE:
-                if (strcmp(newNode->tableData.tableName, parent->tableData.tableName) < 0) {
+                if (newNode->tableData.key < parent->tableData.key) {
                     parent->left = newNode;
                 } else {
                     parent->right = newNode;
@@ -71,7 +99,7 @@ void insertNode(BinaryTree *tree, Node *newNode) {
                 break;
 
             case COLUMN_NODE:
-                if (strcmp(newNode->columnData.columnName, parent->columnData.columnName) < 0) {
+                if (newNode->columnData.key < parent->columnData.key) {
                     parent->left = newNode;
                 } else {
                     parent->right = newNode;
@@ -79,11 +107,16 @@ void insertNode(BinaryTree *tree, Node *newNode) {
                 break;
 
             case VALUE_NODE:
-
+                if (newNode->valueData.key < parent->valueData.key) {
+                    parent->left = newNode;
+                } else {
+                    parent->right = newNode;
+                }
                 break;
         }
     }
 }
+
 
 
 
@@ -139,4 +172,51 @@ void displayTree(BinaryTree *tree) {
 
     printf("Affichage de l'arbre binaire:\n");
     displayNode(tree->root);
+}
+
+void generateDotFile(Node *node, FILE *file) {
+    if (node == NULL) {
+        return;
+    }
+
+    // Écrire le nœud actuel
+    switch (node->type) {
+        case TABLE_NODE:
+            fprintf(file, "    \"%s\" [label=\"Table: %s\"];\n", node->tableData.tableName, node->tableData.tableName);
+            break;
+        case COLUMN_NODE:
+            fprintf(file, "    \"%s\" [label=\"Column: %s (Type: %s)\"];\n", node->columnData.columnName, node->columnData.columnName, node->columnData.type);
+            break;
+        case VALUE_NODE:
+            fprintf(file, "    \"Value_%p\" [label=\"Value: %s\"];\n", (void*)node, node->valueData.data.stringValue);
+            break;
+    }
+
+    // Écrire les relations avec les nœuds enfants
+    if (node->left != NULL) {
+        fprintf(file, "    \"%s\" -> \"%s\";\n", node->tableData.tableName, node->left->tableData.tableName);
+        generateDotFile(node->left, file);
+    }
+    if (node->right != NULL) {
+        fprintf(file, "    \"%s\" -> \"%s\";\n", node->tableData.tableName, node->right->tableData.tableName);
+        generateDotFile(node->right, file);
+    }
+}
+
+void generateGraph(BinaryTree *tree) {
+    FILE *file = fopen("tree.dot", "w");
+    if (file == NULL) {
+        printf("Erreur d'ouverture du fichier DOT.\n");
+        return;
+    }
+
+    fprintf(file, "digraph G {\n"); // Commence le graphe
+    generateDotFile(tree->root, file); // Générez le contenu de l'arbre
+    fprintf(file, "}\n"); // Termine le graphe
+
+    fclose(file);
+
+    // Utiliser Graphviz pour générer une image PNG
+    system("dot -Tpng tree.dot -o tree.png");
+    printf("L'arbre a été généré sous forme d'image tree.png.\n");
 }

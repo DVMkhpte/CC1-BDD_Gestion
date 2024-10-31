@@ -12,7 +12,7 @@ FILE *file = NULL;
 int verifFileExist(char *filename) {
 
     char filepath[256];
-    snprintf(filepath, sizeof(filepath), "../database/%s", filename);
+    snprintf(filepath, sizeof(filepath), "database/%s", filename);
 
     file = fopen(filepath, "r");
 
@@ -26,7 +26,7 @@ int verifFileExist(char *filename) {
 int verifFileExistW(char *filename) {
 
     char filepath[256];
-    snprintf(filepath, sizeof(filepath), "../database/%s", filename);
+    snprintf(filepath, sizeof(filepath), "database/%s", filename);
 
     file = fopen(filepath, "r");
 
@@ -43,7 +43,7 @@ int verifFileExistW(char *filename) {
 int verifFileExistD(char *filename) {
 
     char filepath[256];
-    snprintf(filepath, sizeof(filepath), "../database/%s", filename);
+    snprintf(filepath, sizeof(filepath), "database/%s", filename);
 
     file = fopen(filepath, "r");
 
@@ -65,7 +65,7 @@ int verifFileExistD(char *filename) {
 int createDatabase(char *filename) {
 
     char filepath[256];
-    snprintf(filepath, sizeof(filepath), "../database/%s", filename);
+    snprintf(filepath, sizeof(filepath), "database/%s", filename);
 
     file = fopen(filepath, "w");
 

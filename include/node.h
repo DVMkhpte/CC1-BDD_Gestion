@@ -22,11 +22,12 @@ typedef struct BinaryTree {
 
 
 
-Node* createNode(NodeType type);
+Node* createNode(NodeType type, char *name, ValueType valueType, void *data);
 void insertNode(BinaryTree *tree, Node *newNode);
 void initBinaryTree(BinaryTree *tree);
 
 void displayNode(Node *node);
 void displayTree(BinaryTree *tree);
+void generateGraph(BinaryTree *tree);
 
 #endif 

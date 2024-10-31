@@ -12,12 +12,12 @@ all: $(EXEC)
 
 # Compilation de l'exécutable
 $(EXEC): $(SRC)
-        $(CC) -o $(EXEC) $(SRC)
+	$(CC) -o $(EXEC) $(SRC)
 
 # Nettoyage - suppression de l'exécutable
 clean:
-        rm -f $(EXEC) && rm -f database/base
+	rm -f $(EXEC) && rm -f database/base
 
 # Option pour exécuter le programme
 run: $(EXEC)
-        ./$(EXEC) $(ARGS)
+	./$(EXEC) $(ARGS)
