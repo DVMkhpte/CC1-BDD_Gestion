@@ -37,7 +37,7 @@ void sqlEntry(BinaryTree *tree, Database *db) {
 
 
             } else if(strcmp(token, "SHOW") == 0) {
-
+                displayTree(tree);
 
             } else if(strcmp(token, "CREATE") == 0) {
                 createTable(tree, db, sqlRest);
@@ -71,8 +71,6 @@ void insert(BinaryTree *tree, Database *db, char *sqlRest) {
             tableName[startTable - table - 1] = '\0';
 
             long tableKey = createKey(tableName); 
-
-            printf("TableKey a verifier : %ld\n", tableKey);
             
             Node *current = tree->root;
             int8_t tableExists = 0;
@@ -183,12 +181,13 @@ void insert(BinaryTree *tree, Database *db, char *sqlRest) {
 
                     if (valueType == INT_VALUE) {
                         int intValue = strtol(value, NULL, 10);
-                        newValueNode = createNode(VALUE_NODE, columns[valueCount], INT_VALUE, &intValue);
+                        printf("columns[] = %s\n", columns[valueCount]);
+                        newValueNode = createNode(VALUE_NODE, databaseValue, INT_VALUE, &intValue);
                     } else if (valueType == FLOAT_VALUE) {
                         float floatValue = strtof(value, NULL);
-                        newValueNode = createNode(VALUE_NODE, columns[valueCount], FLOAT_VALUE, &floatValue);
+                        newValueNode = createNode(VALUE_NODE, databaseValue, FLOAT_VALUE, &floatValue);
                     } else if (valueType == STRING_VALUE) {
-                        newValueNode = createNode(VALUE_NODE, columns[valueCount], STRING_VALUE, value);
+                        newValueNode = createNode(VALUE_NODE, databaseValue, STRING_VALUE, value);
                     }
 
                     insertNode(tree,newValueNode);
@@ -337,10 +336,7 @@ void delete(BinaryTree *tree, Database *db, char *sqlRest) {
         strncpy(tableName, from, endTableName - from);
         tableName[endTableName - from - 1] = '\0';
 
-        char nameOfTableKey[256]; 
-            snprintf(nameOfTableKey, sizeof(nameOfTableKey), "table.%s", tableName);
-
-            long tableKey = createKey(nameOfTableKey); 
+            long tableKey = createKey(tableName); 
 
             Node *current = tree->root;
             int8_t tableExists = 0;
@@ -364,14 +360,65 @@ void delete(BinaryTree *tree, Database *db, char *sqlRest) {
 
         if (allData){
             printf("On supprime toute les données de la table\n");
-        }else{
-            printf("On supprime en fonction du where\n");
+            deleteValuesFromFile(tree,tableName);
+        } else {
+            printf("On supprime en fonction du WHERE\n");
+            
+            endTableName += strlen("WHERE");
+            while (*endTableName == ' ') endTableName++; 
+            
+            char condition[256];
+            strncpy(condition, endTableName, sizeof(condition) - 1);
+            condition[sizeof(condition) - 1] = '\0'; 
+
+            size_t len = strlen(condition);
+            if (len > 0 && condition[len - 1] == ';') {
+                condition[len - 1] = '\0'; 
+            }
+
+            char *column = strtok(condition, " ");
+            char *operator = strtok(NULL, " ");
+            char *value = strtok(NULL, " ");
+
+            if (column && operator && value) {
+
+                char nameOfColumnKey[256]; 
+                snprintf(nameOfColumnKey, sizeof(nameOfColumnKey), "column.%s.%s", tableName, column);
+                
+                long columnKey = createKey(nameOfColumnKey);
+                current = tree->root;
+                int8_t columnExists = 0;
+                    
+                while (current != NULL) {
+                    if (current->columnData.key == columnKey) {  
+                        columnExists = 1;
+                        break;
+                    }
+                    if (columnKey < current->columnData.key) {
+                        current = current->left;
+                    } else {
+                        current = current->right;
+                    }
+                }
+
+                if (!columnExists) {
+                    printf("Erreur : La colonne %s presente dans la condition n'existe pas dans la table %s.\n", column, tableName);
+                    return;
+                }
+
+
+                analyseCondition(tree,tableName,column,operator,value);
+                
+                
+
+
+            } else {
+                printf("Condition mal formée.\n");
+            }
+
+           
         }
 
-
-
-        printf("%s\n",from);
-        printf("%s",tableName);
 
     }
 }

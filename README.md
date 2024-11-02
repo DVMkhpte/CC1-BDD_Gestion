@@ -86,7 +86,8 @@ Le projet est organisé comme suit :
 	|── database.c        # Fonctions de gestion de la base de données │   
 	└── binary_tree.c     # Gestion de l'arbre binaire pour le stockage en mémoire |
 ├── include/              # Fichiers d'en-tête │   
-	├── database.h        # Déclarations pour la gestion de la base de données │     └── binary_tree.h     # Déclarations pour l'arbre binaire 
+	├── database.h        # Déclarations pour la gestion de base de données │
+	└── binary_tree.h     # Déclarations pour l'arbre binaire 
 ├── tests/                # Tests unitaires et de validation 
 └── README.md
 ```

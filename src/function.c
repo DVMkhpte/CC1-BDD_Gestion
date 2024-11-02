@@ -4,6 +4,8 @@
 #include <time.h>
 #include "../include/function.h"
 #include "../include/database_structs.h"
+#include "../include/file.h"
+#include "../include/node.h"
 
 void replaceSpacesToDashes(char *str) {
     for (int i = 0; str[i] != '\0'; i++) {
@@ -19,6 +21,9 @@ long  createKey(char *str) {
     for (int i = 0; str[i] != '\0'; i++) {
         sum += (int)str[i]; // On additionne toutes les valeurs ascii dans sum
     }
+
+    printf("Key creer pour %s  : %ld\n", str, sum);
+
     
     return sum;
 }
@@ -36,11 +41,19 @@ ValueType detectValueType(char *value) {
         return FLOAT_VALUE;
     }
 
-    size_t len = strlen(value);
-    if ((value[0] == '\'' && value[len - 1] == '\'') || 
-        (value[0] == '"' && value[len - 1] == '"')) {
         return STRING_VALUE;
-    }
+    
 
-    return;
+    
+}
+
+
+void analyseCondition(BinaryTree *tree,char *tableName, char *column, char *operator, char *value) {
+    ValueType valueType = detectValueType(value);
+
+        deleteValuesFromFileWithConditionInt(tree,tableName,column,operator,value);
+    
+    if (valueType == STRING_VALUE) printf("Value str");
+    if (valueType == FLOAT_VALUE) printf("Value float");
+
 }

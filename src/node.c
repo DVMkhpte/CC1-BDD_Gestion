@@ -118,6 +118,31 @@ void insertNode(BinaryTree *tree, Node *newNode) {
     }
 }
 
+void deleteNode(Node **node) {
+    if (*node == NULL) return;
+
+    if ((*node)->left == NULL) {
+        Node *temp = (*node)->right;
+        free(*node);
+        *node = temp;
+    } else if ((*node)->right == NULL) {
+        Node *temp = (*node)->left;
+        free(*node);
+        *node = temp; 
+    } else {
+        
+        Node *temp = (*node)->right;
+        while (temp->left != NULL) {
+            temp = temp->left;
+        }
+
+        (*node)->valueData = temp->valueData; 
+
+        deleteNode(&((*node)->right)); 
+    }
+}
+
+
 
 
 
@@ -138,10 +163,10 @@ void displayNode(Node *node) {
     // Affichage des données du nœud selon son type
     switch (node->type) {
         case TABLE_NODE:
-            printf("Table: %s\n", node->tableData.tableName);
+            printf("Table: %s (KEY : %ld)\n", node->tableData.tableName,node->tableData.key);
             break;
         case COLUMN_NODE:
-            printf("Column: %s (Type: %s)\n", node->columnData.columnName, node->columnData.type);
+            printf("Column: %s (Type: %s) (KEY : %ld)\n", node->columnData.columnName, node->columnData.type, node->columnData.key);
             break;
         case VALUE_NODE:
             // Ici, tu dois décider comment afficher la valeur,
@@ -150,11 +175,15 @@ void displayNode(Node *node) {
             printf("Value: ");
             // On utilise un exemple, tu devras ajuster en fonction de ta logique
             if (node->valueData.data.intValue != 0) {
-                printf("%d\n", node->valueData.data.intValue);
+                printf("%d (KEY : %ld)\n", node->valueData.data.intValue, node->valueData.key);
+
             } else if (node->valueData.data.floatValue != 0.0f) {
-                printf("%f\n", node->valueData.data.floatValue);
+                printf("%f (KEY : %ld)\n", node->valueData.data.floatValue, node->valueData.key);
+
             } else {
-                printf("%s\n", node->valueData.data.stringValue);
+                printf("%s  (KEY : %ld)\n", node->valueData.data.stringValue, node->valueData.key);
+
+
             }
             break;
         default:

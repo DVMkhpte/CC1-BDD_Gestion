@@ -10,3 +10,11 @@ Verification lors de l'insert que le nombre de colonne = nombre de values
 Bug urgent
 Les float ne s'ecrive pas bien dans l'arbre
 Les str font des boucle infini
+
+table.classe
+column.classe.id-INT
+column.classe.row1-INT
+column.classe.row2-INT
+values.classe.id.1
+values.classe.row1.2
+values.classe.row2.3
