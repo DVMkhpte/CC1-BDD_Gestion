@@ -16,7 +16,7 @@ $(EXEC): $(SRC)
 
 # Nettoyage - suppression de l'exécutable
 clean:
-	rm -f $(EXEC) && rm -f database/base
+	rm -f $(EXEC)
 
 # Option pour exécuter le programme
 run: $(EXEC)

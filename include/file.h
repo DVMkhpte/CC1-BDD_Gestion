@@ -4,7 +4,8 @@
 int verifFileExist(char *filename);
 int verifFileExistW(char *filename);
 int verifFileExistD(char *filename);
-int createDatabase(char *filename);
+void createDatabase(char *filename);
+void loadDatabase(char *filename);
 int writeInDatabase(char *values);
 
 

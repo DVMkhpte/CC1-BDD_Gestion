@@ -15,6 +15,7 @@ Node *createNode(NodeType type, char *name, ValueType valueType, void *data) {
     newNode->right = NULL;
 
     long key = createKey(name);
+    
     switch (type) {
         case TABLE_NODE:
             strncpy(newNode->tableData.tableName, name, sizeof(newNode->tableData.tableName) - 1);

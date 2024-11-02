@@ -1,6 +1,12 @@
 Pourquoi on a 2 fois "Commande SQL" quand on USE une bdd apres l'avoir creer
 Verification des commandes sql (formatage avant de les donnée au fonction sql)
 Le reste des fonction
-Fonction pour creer un arbre a partir d'un fichier text
-Peut t'etre passer le fichier text en json
+Fonction pour creer un arbre a partir d'un fichier text (FAIT)
 Fonction pour quitter propre
+Rajouter les verif pour pas que une table soit en double dans une database
+Verification lors de l'insert que le nombre de colonne = nombre de values
+
+
+Bug urgent
+Les float ne s'ecrive pas bien dans l'arbre
+Les str font des boucle infini

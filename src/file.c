@@ -5,6 +5,7 @@
 #include "../include/menu.h"
 #include "../include/sql.h"
 #include "../include/database_structs.h"
+#include "../include/function.h"
 
 
 FILE *file = NULL;
@@ -62,7 +63,7 @@ int verifFileExistD(char *filename) {
 }
 
 
-int createDatabase(char *filename) {
+void createDatabase(char *filename) {
 
     char filepath[256];
     snprintf(filepath, sizeof(filepath), "database/%s", filename);
@@ -116,6 +117,100 @@ int createDatabase(char *filename) {
     }
 
 }
+
+
+void loadDatabase(char *filename) {
+    char filepath[256];
+    snprintf(filepath, sizeof(filepath), "database/%s", filename);
+
+    FILE *file = fopen(filepath, "r");
+    if (!file) {
+        printf("Erreur lors de l'ouverture de la base de donnée\n");
+        exit(EXIT_FAILURE);
+    }
+
+    BinaryTree tree;
+    initBinaryTree(&tree);
+
+    Database *db = malloc(sizeof(Database));
+    if (db == NULL) {
+        printf("Erreur lors de l'allocation de la mémoire pour la base de données.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    initDatabase(db, filename);
+
+    char line[512];
+    Node *tableNode = NULL;
+
+    while (fgets(line, sizeof(line), file) != NULL) {
+        line[strcspn(line, "\n")] = '\0';
+
+        if (strncmp(line, "table.", 6) == 0) {
+            char tableName[256];
+            sscanf(line, "table.%255s", tableName);
+            printf("Nom de la table à charger : %s\n", tableName);
+
+            
+
+            Node *tableNode = createNode(TABLE_NODE, tableName, INT_VALUE, NULL);
+            strcpy(tableNode->tableData.tableName, tableName); 
+            tableNode->tableData.columns = NULL;
+            tableNode->tableData.columnCount = 0;
+            db->tableCount++;
+            
+            insertNode(&tree, tableNode);
+         
+        }
+        else if (strncmp(line, "column.", 7) == 0) {
+            char tableName[256], columnName[256], columnType[100];
+            sscanf(line, "column.%255[^.].%255[^-]-%99s", tableName, columnName, columnType);
+
+            char fullColumnName[512];
+            snprintf(fullColumnName, sizeof(fullColumnName), "column.%s.%s", tableName, columnName);
+
+            Node *columnNode = createNode(COLUMN_NODE, fullColumnName, INT_VALUE, NULL);
+            strcpy(columnNode->columnData.columnName, columnName);
+            strcpy(columnNode->columnData.type, columnType);
+
+            //tableNode->tableData.columns = realloc(tableNode->tableData.columns, sizeof(Column) * (tableNode->tableData.columnCount + 1));
+            //tableNode->tableData.columns[tableNode->tableData.columnCount] = columnNode->columnData;
+            //tableNode->tableData.columnCount++;
+            
+            insertNode(&tree, columnNode);
+         
+        }
+        else if (strncmp(line, "values.", 7) == 0) {
+            char tableName[256], columnName[256], value[256];
+            sscanf(line, "values.%255[^.].%255[^.].%255s", tableName, columnName, value);
+
+            ValueType valueType = detectValueType(value);
+            Node *valueNode;
+
+            if (valueType == INT_VALUE) {
+                int intValue = strtol(value, NULL, 10);
+                valueNode = createNode(VALUE_NODE, columnName, INT_VALUE, &intValue);
+            } else if (valueType == FLOAT_VALUE) {
+                float floatValue = strtof(value, NULL);
+                valueNode = createNode(VALUE_NODE, columnName, FLOAT_VALUE, &floatValue);
+            } else if (valueType == STRING_VALUE) {
+                valueNode = createNode(VALUE_NODE, columnName, STRING_VALUE, value);
+            }
+
+            insertNode(&tree, valueNode);
+        }
+         
+    }
+
+    displayTree(&tree);
+    fclose(file);
+    printf("Base de données chargée avec succès depuis le fichier %s\n", filepath);
+
+    createSecondMenu();
+    sqlEntry(&tree, db);
+}
+
+
 
 int writeInDatabase(char *values) {
     fprintf(file, "\n%s", values);

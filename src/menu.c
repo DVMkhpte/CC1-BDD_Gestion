@@ -38,10 +38,7 @@ void verifFirstMenu(char *argv[]) {
             break;
         case '2':
             verifFileExistW(argv[2]);
-            createSecondMenu();
-            Database *db = NULL;
-            BinaryTree *tree = NULL;
-            sqlEntry(tree,db);
+            loadDatabase(argv[2]);
             break;
         case '3':
             verifFileExistD(argv[2]);

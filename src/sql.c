@@ -31,7 +31,7 @@ void sqlEntry(BinaryTree *tree, Database *db) {
 
 
             } else if(strcmp(token, "DELETE") == 0) {
-
+                delete(tree,db,sqlRest);
 
             } else if(strcmp(token, "UPDATE") == 0) {
 
@@ -70,11 +70,10 @@ void insert(BinaryTree *tree, Database *db, char *sqlRest) {
             strncpy(tableName, table, startTable - table - 1);
             tableName[startTable - table - 1] = '\0';
 
-            char nameOfTableKey[256]; 
-            snprintf(nameOfTableKey, sizeof(nameOfTableKey), "table.%s", tableName);
+            long tableKey = createKey(tableName); 
 
-            long tableKey = createKey(nameOfTableKey); 
-
+            printf("TableKey a verifier : %ld\n", tableKey);
+            
             Node *current = tree->root;
             int8_t tableExists = 0;
             
@@ -127,13 +126,7 @@ void insert(BinaryTree *tree, Database *db, char *sqlRest) {
 
                 columns[columnCount] = strdup(column); 
                 columnCount++; 
-                for (int i = 0; i < columnCount; i++) {
-                    printf("Nom de colonne dans le tableau : %s\n", columns[i]);
-                }
                 
-
-                
-
                     char nameOfColumnKey[256]; 
                     snprintf(nameOfColumnKey, sizeof(nameOfColumnKey), "column.%s.%s", tableName, column);
                     
@@ -199,7 +192,7 @@ void insert(BinaryTree *tree, Database *db, char *sqlRest) {
                     }
 
                     insertNode(tree,newValueNode);
-                    displayTree(tree);
+                    
 
                    value = strtok(NULL, ",");
                    valueCount ++;
@@ -249,7 +242,7 @@ void createTable(BinaryTree *tree, Database *db, char *sqlRest) {
                 printf("Erreur lors de l'écriture du nom de la table dans la base de données.\n");
             }
 
-            Node *newTableNode = createNode(TABLE_NODE, databaseTableName, INT_VALUE, NULL); // On creer un nouveau node de TABLE
+            Node *newTableNode = createNode(TABLE_NODE, tableName, INT_VALUE, NULL); // On creer un nouveau node de TABLE
             strcpy(newTableNode->tableData.tableName, tableName); // On y met la nom de la table
             newTableNode->tableData.columns = NULL;
             newTableNode->tableData.columnCount = 0;
@@ -322,7 +315,7 @@ void createTable(BinaryTree *tree, Database *db, char *sqlRest) {
 }
 
 
-/* void delete(char *sqlRest) {
+void delete(BinaryTree *tree, Database *db, char *sqlRest) {
 
     char *from = strstr(sqlRest, "FROM");
 
@@ -334,21 +327,45 @@ void createTable(BinaryTree *tree, Database *db, char *sqlRest) {
 
         char tableName[256];
         char *endTableName = strstr(from, "WHERE");
+        int8_t allData = (endTableName == NULL);  // Vu que il n'y a pas de WHERE toute les donnée de la table seront suprimmer
 
-        int8_t allData = 0;
 
-        if (endTableName == NULL) {
-            allData = 1; // Vu que il n'y a pas de WHERE toute les donnée de la table seront suprimmer
+        if(allData) {
             endTableName = from + strlen(from); // On va a la fin de la chaine
         }
 
         strncpy(tableName, from, endTableName - from);
         tableName[endTableName - from - 1] = '\0';
 
+        char nameOfTableKey[256]; 
+            snprintf(nameOfTableKey, sizeof(nameOfTableKey), "table.%s", tableName);
+
+            long tableKey = createKey(nameOfTableKey); 
+
+            Node *current = tree->root;
+            int8_t tableExists = 0;
+            
+            while (current != NULL) {
+                if (current->tableData.key == tableKey) {
+                    tableExists = 1;
+                    break;
+                }
+                if (tableKey < current->tableData.key) {
+                    current = current->left;
+                } else {
+                    current = current->right;
+                }
+            }
+
+            if (!tableExists) {
+                printf("Erreur : La table %s n'existe pas.\n", tableName);
+                return;
+            }
+
         if (allData){
-
+            printf("On supprime toute les données de la table\n");
         }else{
-
+            printf("On supprime en fonction du where\n");
         }
 
 
@@ -359,4 +376,3 @@ void createTable(BinaryTree *tree, Database *db, char *sqlRest) {
     }
 }
 
-*/
