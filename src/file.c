@@ -283,17 +283,16 @@ void deleteValuesFromFile(BinaryTree *tree, char *tableName) {
 
 }
 
-void deleteValuesFromFileWithConditionInt(BinaryTree *tree,char *tableName,char *column, char *operator, char *value) {
-
+void deleteValuesFromFileWithConditionInt(BinaryTree *tree, char *tableName, char *column, char *operator, char *value) {
     char filepath[256];
     snprintf(filepath, sizeof(filepath), "database/%s", fileName);
 
-    file = fopen(filepath, "r");  
+    file = fopen(filepath, "r");
     if (!file) {
-        printf("Erreur lors de l'ouverture de la base de donnée\n");
+        printf("Erreur lors de l'ouverture de la base de données\n");
         return;
     }
-    
+
     FILE *tempFile = fopen("database/temp.txt", "w");
     if (!tempFile) {
         printf("Erreur lors de la création du fichier temporaire\n");
@@ -304,28 +303,26 @@ void deleteValuesFromFileWithConditionInt(BinaryTree *tree,char *tableName,char 
     char line[512];
     char valuesPrefix[512];
     char lineValue[256];
-    int8_t isValue = 0;
+    int isValue = 0;
     int targetValue = atoi(value);
 
-     if (strcmp(operator, "= ")) { 
-        
+    printf("operator : %s\n", operator);
+
+    if (strcmp(operator, "=") == 0) {
         snprintf(valuesPrefix, sizeof(valuesPrefix), "values.%s.%s.%s", tableName, column, value);
-        
+
         while (fgets(line, sizeof(line), file) != NULL) {
-        
             if (strncmp(line, valuesPrefix, strlen(valuesPrefix)) != 0) {
-                fputs(line, tempFile);  
+                fputs(line, tempFile);
             } else {
                 isValue++;
-                char tableName[256], columnName[256], value[256];
                 line[strcspn(line, "\n")] = '\0';
-            
                 long valueKey = createKey(line);
                 Node *current = tree->root;
 
                 while (current != NULL) {
-                    if (current->valueData.key == valueKey) {  
-                        printf("go delete le node\n");
+                    if (current->valueData.key == valueKey) {
+                        
                         deleteNode(&current);
                         break;
                     }
@@ -335,38 +332,25 @@ void deleteValuesFromFileWithConditionInt(BinaryTree *tree,char *tableName,char 
                         current = current->right;
                     }
                 }
-
             }
         }
+    } else if (strcmp(operator, "<") == 0) {
 
-        fclose(file);
-        fclose(tempFile);
-
-        remove(filepath);
-        rename("database/temp.txt", filepath);
-    }
-
-    else if (strcmp(operator, "<")) {
-    printf("ici\n");
         while (fgets(line, sizeof(line), file) != NULL) {
+            if (strncmp(line, "values", 6) == 0) {  
+                sscanf(line, "values.%*[^.].%*[^.].%s", lineValue);
+                int currentValue = atoi(lineValue);
 
-            sscanf(line, "values.%*[^.].%*[^.].%s", lineValue);
-            int currentValue = atoi(lineValue);
-
-            if (currentValue >= targetValue) {
-
-                fputs(line, tempFile);  
+                if (currentValue >= targetValue) {
+                    fputs(line, tempFile);
                 } else {
                     isValue++;
-                    char tableName[256], columnName[256], value[256];
                     line[strcspn(line, "\n")] = '\0';
-            
                     long valueKey = createKey(line);
                     Node *current = tree->root;
 
                     while (current != NULL) {
-                        if (current->valueData.key == valueKey) {  
-                            printf("go delete le node\n");
+                        if (current->valueData.key == valueKey) {
                             deleteNode(&current);
                             break;
                         }
@@ -376,27 +360,140 @@ void deleteValuesFromFileWithConditionInt(BinaryTree *tree,char *tableName,char 
                             current = current->right;
                         }
                     }
+                }
+            } else {
+                fputs(line, tempFile);
+            }
+        }
+    } else if (strcmp(operator, ">") == 0) {
 
+        while (fgets(line, sizeof(line), file) != NULL) {
+            if (strncmp(line, "values", 6) == 0) {  
+                sscanf(line, "values.%*[^.].%*[^.].%s", lineValue);
+                int currentValue = atoi(lineValue);
+
+                if (currentValue <= targetValue) {
+                    fputs(line, tempFile);
+                } else {
+                    isValue++;
+                    line[strcspn(line, "\n")] = '\0';
+                    long valueKey = createKey(line);
+                    Node *current = tree->root;
+
+                    while (current != NULL) {
+                        if (current->valueData.key == valueKey) {
+                            deleteNode(&current);
+                            break;
+                        }
+                        if (valueKey < current->valueData.key) {
+                            current = current->left;
+                        } else {
+                            current = current->right;
+                        }
+                    }
+                }
+            } else {
+                fputs(line, tempFile);
+            }
+        }
+    }
+
+    fclose(file);
+    fclose(tempFile);
+
+    remove(filepath);
+    rename("database/temp.txt", filepath);
+}
+
+void deleteTableFromFile(BinaryTree *tree, char *tableName) {
+    char filepath[256];
+    snprintf(filepath, sizeof(filepath), "database/%s", fileName);
+
+    file = fopen(filepath, "r");
+    if (!file) {
+        printf("Erreur lors de l'ouverture de la base de donnée\n");
+        return;
+    }
+
+    FILE *tempFile = fopen("database/temp.txt", "w");
+    if (!tempFile) {
+        printf("Erreur lors de la création du fichier temporaire\n");
+        fclose(file);
+        return;
+    }
+
+    char line[512];
+    char tablePrefix[512], columnPrefix[512], valuesPrefix[512];
+    int8_t isValue = 0;
+
+    snprintf(tablePrefix, sizeof(tablePrefix), "table.%s", tableName);
+    snprintf(columnPrefix, sizeof(columnPrefix), "column.%s", tableName);
+    snprintf(valuesPrefix, sizeof(valuesPrefix), "values.%s", tableName);
+
+    long tableKey = createKey(tablePrefix);
+
+    while (fgets(line, sizeof(line), file) != NULL) {
+        if (strncmp(line, tablePrefix, strlen(tablePrefix)) != 0 &&
+            strncmp(line, columnPrefix, strlen(columnPrefix)) != 0 &&
+            strncmp(line, valuesPrefix, strlen(valuesPrefix)) != 0) {
+            fputs(line, tempFile);  
+        } else {
+            isValue++;
+            line[strcspn(line, "\n")] = '\0';
+
+            char *suffixes[] = {"-INT", "-CHAR", "-FLOAT"};
+            for (int i = 0; i < 3; i++) {
+                char *pos = strstr(line, suffixes[i]);
+                if (pos != NULL) {
+                    *pos = '\0';
+                    break;
                 }
             }
-        
 
-            fclose(file);
-            fclose(tempFile);
+            long lineKey = createKey(line);
+            Node *current = tree->root;
 
-            remove(filepath);
-            rename("database/temp.txt", filepath);
+            while (current != NULL) {
+                if (current->tableData.key == tableKey) {
+                    printf("Suppression de la table dans l'arbre\n");
+                    deleteNode(&current);
+                    break;
+                } else if (current->columnData.key == lineKey) {
+                    printf("Suppression de la colonne dans l'arbre\n");
+                    deleteNode(&current);
+                    break;
+                } else if (current->valueData.key == lineKey) {
+                    printf("Suppression de la valeur dans l'arbre\n");
+                    deleteNode(&current);
+                    break;
+                }
 
+                if (lineKey < current->valueData.key || tableKey < current->tableData.key || lineKey < current->columnData.key) {
+                    current = current->left;
+                    printf("Go Gauche\n");
+                } else {
+                    current = current->right;
+                    printf("Go Droite\n");
+                }
+            }
         }
 
+        printf("Ligne suivante\n");
+    }
 
-    else if (operator == ">") { }
+    if (isValue != 0) {
+        printf("La table %s et toutes ses valeurs ont été supprimées.\n", tableName);
+    }
 
+    fclose(file);
+    fclose(tempFile);
 
-    
-
-
+    remove(filepath);
+    rename("database/temp.txt", filepath);
 }
+
+
+
 
 
 /* exit 

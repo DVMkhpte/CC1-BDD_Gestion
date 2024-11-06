@@ -1,7 +1,6 @@
 Pourquoi on a 2 fois "Commande SQL" quand on USE une bdd apres l'avoir creer
 Verification des commandes sql (formatage avant de les donnée au fonction sql)
 Le reste des fonction
-Fonction pour creer un arbre a partir d'un fichier text (FAIT)
 Fonction pour quitter propre
 Rajouter les verif pour pas que une table soit en double dans une database
 Verification lors de l'insert que le nombre de colonne = nombre de values
@@ -11,10 +10,7 @@ Bug urgent
 Les float ne s'ecrive pas bien dans l'arbre
 Les str font des boucle infini
 
-table.classe
-column.classe.id-INT
-column.classe.row1-INT
-column.classe.row2-INT
-values.classe.id.1
-values.classe.row1.2
-values.classe.row2.3
+
+Je suis dessus
+Lors du DROP TABLE seulement les value se qupprime de l'arbre (les colonne et la table ne sont pas trouver PAR LA RECHERCHE)
+

@@ -41,6 +41,9 @@ void sqlEntry(BinaryTree *tree, Database *db) {
 
             } else if(strcmp(token, "CREATE") == 0) {
                 createTable(tree, db, sqlRest);
+            
+            } else if(strcmp(token, "DROP") == 0) {
+               dropTable(tree, db, sqlRest);
             } else if(strcmp(token, "EXIT") == 0) {
                 x = 0;
             } else {
@@ -241,7 +244,7 @@ void createTable(BinaryTree *tree, Database *db, char *sqlRest) {
                 printf("Erreur lors de l'écriture du nom de la table dans la base de données.\n");
             }
 
-            Node *newTableNode = createNode(TABLE_NODE, tableName, INT_VALUE, NULL); // On creer un nouveau node de TABLE
+            Node *newTableNode = createNode(TABLE_NODE, databaseTableName, INT_VALUE, NULL); // On creer un nouveau node de TABLE
             strcpy(newTableNode->tableData.tableName, tableName); // On y met la nom de la table
             newTableNode->tableData.columns = NULL;
             newTableNode->tableData.columnCount = 0;
@@ -330,7 +333,7 @@ void delete(BinaryTree *tree, Database *db, char *sqlRest) {
 
 
         if(allData) {
-            endTableName = from + strlen(from); // On va a la fin de la chaine
+            endTableName = from + strlen(from); // Et on va a la fin de la chaine
         }
 
         strncpy(tableName, from, endTableName - from);
@@ -359,11 +362,8 @@ void delete(BinaryTree *tree, Database *db, char *sqlRest) {
             }
 
         if (allData){
-            printf("On supprime toute les données de la table\n");
             deleteValuesFromFile(tree,tableName);
         } else {
-            printf("On supprime en fonction du WHERE\n");
-            
             endTableName += strlen("WHERE");
             while (*endTableName == ' ') endTableName++; 
             
@@ -405,14 +405,10 @@ void delete(BinaryTree *tree, Database *db, char *sqlRest) {
                     printf("Erreur : La colonne %s presente dans la condition n'existe pas dans la table %s.\n", column, tableName);
                     return;
                 }
-
-
+                
                 analyseCondition(tree,tableName,column,operator,value);
                 
-                
-
-
-            } else {
+                } else {
                 printf("Condition mal formée.\n");
             }
 
@@ -423,3 +419,45 @@ void delete(BinaryTree *tree, Database *db, char *sqlRest) {
     }
 }
 
+void dropTable(BinaryTree *tree, Database *db, char *sqlRest) {
+
+     char *table = strstr(sqlRest, "TABLE");
+
+    if(table != NULL) {
+        table += strlen("TABLE");
+        while (*table == ' ') {
+            table++;
+        }
+
+       size_t len = strlen(table);
+            if (len > 0 && table[len - 1] == ';') {
+                table[len - 1] = '\0'; 
+            }
+
+       long tableKey = createKey(table); 
+
+            Node *current = tree->root;
+            int8_t tableExists = 0;
+            
+            while (current != NULL) {
+                if (current->tableData.key == tableKey) {
+                    tableExists = 1;
+                    break;
+                }
+                if (tableKey < current->tableData.key) {
+                    current = current->left;
+                } else {
+                    current = current->right;
+                }
+            }
+
+            if (!tableExists) {
+                printf("Erreur : La table %s n'existe pas.\n", table);
+                return;
+            }
+
+
+            deleteTableFromFile(tree, table);
+
+    }
+}
