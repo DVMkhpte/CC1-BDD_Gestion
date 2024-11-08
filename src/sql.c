@@ -28,16 +28,11 @@ void sqlEntry(BinaryTree *tree, Database *db) {
             if(strcmp(token, "INSERT") == 0) {
                 insert(tree, db, sqlRest);
             } else if(strcmp(token, "SELECT") == 0) {
-
-
+                selectt(tree, sqlRest);
             } else if(strcmp(token, "DELETE") == 0) {
                 delete(tree,db,sqlRest);
-
-            } else if(strcmp(token, "UPDATE") == 0) {
-
-
             } else if(strcmp(token, "SHOW") == 0) {
-                displayTree(tree);
+                show(tree);
 
             } else if(strcmp(token, "CREATE") == 0) {
                 createTable(tree, db, sqlRest);
@@ -236,6 +231,28 @@ void createTable(BinaryTree *tree, Database *db, char *sqlRest) {
             strncpy(tableName, table, startColumns - table);
             tableName[startColumns - table - 1] = '\0';
 
+            long tableKey = createKey(tableName); 
+
+            Node *current = tree->root;
+            int8_t tableExists = 0;
+            
+            while (current != NULL) {
+                if (current->tableData.key == tableKey) {
+                    tableExists = 1;
+                    break;
+                }
+                if (tableKey < current->tableData.key) {
+                    current = current->left;
+                } else {
+                    current = current->right;
+                }
+            }
+
+            if (tableExists) {
+                printf("Erreur : Une table avec ce nom existe deja.\n");
+                return;
+            }
+
             char databaseTableName[256];
             snprintf(databaseTableName, sizeof(databaseTableName), "table.%s", tableName);
 
@@ -421,7 +438,7 @@ void delete(BinaryTree *tree, Database *db, char *sqlRest) {
 
 void dropTable(BinaryTree *tree, Database *db, char *sqlRest) {
 
-     char *table = strstr(sqlRest, "TABLE");
+    char *table = strstr(sqlRest, "TABLE");
 
     if(table != NULL) {
         table += strlen("TABLE");
@@ -460,4 +477,175 @@ void dropTable(BinaryTree *tree, Database *db, char *sqlRest) {
             deleteTableFromFile(tree, table);
 
     }
+}
+
+void show(BinaryTree *tree) {
+    if (tree->root == NULL) {
+        printf("L'arbre est vide.\n");
+        return;
+    }
+
+    char currentTable[256] = "";  
+    printf("+----------------------+\n");
+    printf("|   Liste des tables   |\n");
+    printf("+----------------------+\n");
+
+    showNode(tree->root, currentTable);
+    printf("\nFin de l'affichage des tables.\n");
+}
+
+void showNode(Node *node, char *currentTable) {
+    if (node == NULL) return;
+
+    showNode(node->left, currentTable);
+
+    if (node->type == TABLE_NODE) {
+        strcpy(currentTable, node->tableData.tableName);  
+        printf("\nTable: %s\n", currentTable);
+        printf("Colonnes:\n");
+    } else if (node->type == COLUMN_NODE) {
+        char fullColumnName[512];
+        snprintf(fullColumnName, sizeof(fullColumnName), "column.%s.%s", currentTable, node->columnData.columnName);
+        
+        long columnKey = createKey(fullColumnName);
+        
+        if (node->columnData.key == columnKey) {
+            printf(" - %s (%s)\n", node->columnData.columnName, node->columnData.type);
+        }
+    }
+
+    showNode(node->right, currentTable);
+}
+
+void selectt(BinaryTree *tree, char *sqlRest) {
+    char *from = strstr(sqlRest, "FROM");
+    
+    if (from != NULL) {
+        from += strlen("FROM");
+        while (*from == ' ') {
+            from++;
+        }
+
+        char tableName[256];
+        char *endTableName = strstr(from, "FOR");
+
+        if (endTableName == NULL) {
+            printf("Erreur : Syntaxe incorrecte. Utilisez 'SELECT * FROM <table_name> FOR <column_name>'.\n");
+            return;
+        }
+
+        strncpy(tableName, from, endTableName - from - 1);
+        tableName[endTableName - from] = '\0';
+
+        endTableName += strlen("FOR");
+        while (*endTableName == ' ') endTableName++;
+        
+        char columnName[256];
+        strncpy(columnName, endTableName, sizeof(columnName) - 1);
+        columnName[sizeof(columnName) - 1] = '\0';
+
+        size_t len = strlen(columnName);
+            if (len > 0 && columnName[len - 1] == ';') {
+                columnName[len - 1] = '\0'; 
+            }
+
+        long tableKey = createKey(tableName);
+        Node *current = tree->root;
+        int8_t tableExists = 0;
+
+        while (current != NULL) {
+            if (current->tableData.key == tableKey) {
+                tableExists = 1;
+                break;
+            }
+            if (tableKey < current->tableData.key) {
+                current = current->left;
+            } else {
+                current = current->right;
+            }
+        }
+
+        if (!tableExists) {
+            printf("Erreur : La table %s n'existe pas.\n", tableName);
+            return;
+        }
+
+        char fullColumnName[512];
+        snprintf(fullColumnName, sizeof(fullColumnName), "column.%s.%s", tableName, columnName);
+
+        long columnKey = createKey(fullColumnName);
+        current = tree->root;
+        int8_t columnExists = 0;
+
+        while (current != NULL) {
+            if (current->type == COLUMN_NODE && current->columnData.key == columnKey) {
+                columnExists = 1;
+                break;
+            }
+            if (columnKey < current->columnData.key) {
+                current = current->left;
+            } else {
+                current = current->right;
+            }
+        }
+
+        if (!columnExists) {
+            printf("Erreur : La colonne %s n'existe pas dans la table %s.\n", columnName, tableName);
+            return;
+        }
+
+        if (tree->root == NULL) {
+        printf("L'arbre est vide.\n");
+        return;
+        }
+
+        printf("Liste des valeur pour la table %s et la colonne %s \n", tableName, columnName);
+        
+        showValue(tree,tree->root, tableName, columnName);
+        printf("\nFin de l'affichage des tables.\n");
+    }
+}
+
+void showValue(BinaryTree *tree, Node *node, char *tableName, char *columnName) {
+
+    if (node == NULL) return;
+
+    showValue(tree, node->left, tableName, columnName);
+
+    if (node->type == VALUE_NODE) {
+        char fullValueName[512];
+        if (node->valueData.data.intValue != 0) {
+            snprintf(fullValueName, sizeof(fullValueName), "values.%s.%s.%d", tableName, columnName, node->valueData.data.intValue);
+        } else if (node->valueData.data.floatValue != 0.0f) {
+            snprintf(fullValueName, sizeof(fullValueName), "values.%s.%s.%f", tableName, columnName, node->valueData.data.floatValue);
+        } else if (node->valueData.data.stringValue != NULL) {
+            snprintf(fullValueName, sizeof(fullValueName), "values.%s.%s.%s", tableName, columnName, node->valueData.data.stringValue);
+        }
+
+        long valueKey = createKey(fullValueName);
+
+        Node *current = tree->root;
+
+        while (current != NULL) {
+            if (current->valueData.key == valueKey) {
+
+                printf("Valeur: ");
+                if (node->valueData.data.intValue != 0) {
+                    printf("%d\n", node->valueData.data.intValue);  
+                } else if (node->valueData.data.stringValue != NULL) {
+                    printf("%s\n", node->valueData.data.stringValue);  
+                } else if (node->valueData.data.floatValue != 0.0f) {
+                    printf("%f\n", node->valueData.data.floatValue);  
+                }
+            }
+            if (valueKey < current->tableData.key || valueKey < current->columnData.key || valueKey < current->valueData.key) {
+                current = current->left;
+            } else {
+                current = current->right;
+            }
+
+        }
+    }   
+
+    showValue(tree, node->right, tableName, columnName);
 }

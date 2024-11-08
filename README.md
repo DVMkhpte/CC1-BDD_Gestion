@@ -73,6 +73,26 @@ Ce projet utilise une structure d’arbre binaire pour organiser les tables et l
 	INSERT INTO nom_de_table (nom_de_colonne1, nom de colonne2, ...) VALUES (valeur1,valeur2,...);
 	```
 
+- Afficher toutes les valeurs d'une colonne spécifique :
+	```bash
+	SELECT * FROM nom_de_table FOR nom_de_colonne;
+	```	
+- Afficher la structure de toutes les tables :
+	```bash
+	SHOW
+	```
+-  Supprimer toutes les valeurs d'une table :
+	```bash
+	DELETE * FROM nom_de_table;
+	```
+- Supprimer une valeur ou plusieurs valeurs selon une conditions :
+	```bash
+	DELETE * FROM nom_de_table WHERE condition (=, <, >);
+	```
+- Supprimer une table :
+	```bash
+	DROP TABLE nom_de_table;
+	```
 ## Architecture
 
 ### Structure des Fichiers

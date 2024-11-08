@@ -23,11 +23,10 @@ void createSecondMenu() {
     printf("| 1. INSERT                               |\n");
     printf("| 2. SELECT                               |\n");
     printf("| 3. DELETE                               |\n");
-    printf("| 4. UPDATE                               |\n");
-    printf("| 5. SHOW                                 |\n");
-    printf("| 6. CREATE TABLE                         |\n");
-    printf("| 7. DROP TABLE                           |\n");
-    printf("| 8. EXIT (Quitter le programme)          |\n");
+    printf("| 4. SHOW                                 |\n");
+    printf("| 5. CREATE TABLE                         |\n");
+    printf("| 6. DROP TABLE                           |\n");
+    printf("| 7. EXIT (Quitter le programme)          |\n");
     printf("+-----------------------------------------+\n");
 }
 

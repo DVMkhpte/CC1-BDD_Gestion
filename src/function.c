@@ -22,7 +22,7 @@ long  createKey(char *str) {
         sum += (int)str[i]; // On additionne toutes les valeurs ascii dans sum
     }
 
-    printf("Key creer pour %s: %ld\n", str, sum);
+    //printf("Key creer pour %s: %ld\n", str, sum);
 
     
     return sum;
