@@ -433,6 +433,8 @@ void delete(BinaryTree *tree, Database *db, char *sqlRest) {
         }
 
 
+    } else {
+        printf("Mauvais formatage de la requete : FROM manquant !!\n");
     }
 }
 
@@ -476,6 +478,8 @@ void dropTable(BinaryTree *tree, Database *db, char *sqlRest) {
 
             deleteTableFromFile(tree, table);
 
+    } else {
+        printf("Erreur : Mauvais formatage de la requete : TABLE manquant !!\n");
     }
 }
 
@@ -603,6 +607,8 @@ void selectt(BinaryTree *tree, char *sqlRest) {
         
         showValue(tree,tree->root, tableName, columnName);
         printf("\nFin de l'affichage des tables.\n");
+    } else {
+        printf("Erreur : Mauvais formatage de la requete : FROM manquant !!\n");
     }
 }
 
