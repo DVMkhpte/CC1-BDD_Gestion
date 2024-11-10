@@ -46,6 +46,8 @@ void sqlEntry(BinaryTree *tree, Database *db) {
         }
     }
 
+    freeTree(tree->root);
+    
 }
 
 

@@ -492,15 +492,3 @@ void deleteTableFromFile(BinaryTree *tree, char *tableName) {
     rename("database/temp.txt", filepath);
 }
 
-
-
-
-
-/* exit 
-
-if (filename != NULL) {
-    free(filename);
-    filename = NULL;  // Éviter les accès à la mémoire libérée
-}
-
-*/

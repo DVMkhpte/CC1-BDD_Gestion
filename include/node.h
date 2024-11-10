@@ -26,9 +26,10 @@ Node *createNode(NodeType type, char *name, ValueType valueType, void *data);
 void insertNode(BinaryTree *tree, Node *newNode);
 void initBinaryTree(BinaryTree *tree);
 void deleteNode(Node **node);
-
+void freeTree(Node *node);
 void displayNode(Node *node);
 void displayTree(BinaryTree *tree);
 void generateGraph(BinaryTree *tree);
+
 
 #endif 

@@ -142,6 +142,16 @@ void deleteNode(Node **node) {
     }
 }
 
+void freeTree(Node *node) {
+    if (node == NULL) {
+        return;
+    }
+
+    freeTree(node->left);
+    freeTree(node->right);
+
+    free(node);
+}
 
 
 

@@ -1,7 +1,5 @@
 Pourquoi on a 2 fois "Commande SQL" quand on USE une bdd apres l'avoir creer
 Verification des commandes sql (formatage avant de les donnée au fonction sql)
-Fonction pour quitter propre
-Verification lors de l'insert que le nombre de colonne = nombre de values
 delete sur les float et les string
 Lors du DROP TABLE seulement les value se supprime de l'arbre (les colonne et la table ne sont pas trouver PAR LA RECHERCHE)
 Mettre les commentaire
