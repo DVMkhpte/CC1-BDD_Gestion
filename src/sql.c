@@ -9,11 +9,11 @@
 
 
 void sqlEntry(BinaryTree *tree, Database *db) {
-
+   
     int8_t x = 1;
-
+    
     while(x == 1){
-
+    
         printf("Commande SQL : ");
 
         char sql[256];

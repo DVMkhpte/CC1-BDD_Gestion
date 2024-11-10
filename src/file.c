@@ -51,7 +51,7 @@ int verifFileExistD(char *filename) {
 
     if (file) {
         if (remove(filepath) == 0) {
-            printf("Le fichier a été supprimé avec succès.\n");
+            printf("La base de donnée a été supprimé avec succès.\n");
             return EXIT_SUCCESS;
         }else{
             printf("Erreur lors de la suppression de la base de donnée.\n");
@@ -83,7 +83,9 @@ void createDatabase(char *filename) {
 
     while (x == 1) {
         printf("Voulez-vous USE la base de données %s ? (Oui/Non) : ", filename);
-        scanf("%3s", res);
+        fgets(res, sizeof(res), stdin);
+        res[strcspn(res, "\n")] = '\0';
+        fflush(stdin);
 
         if (strcmp(res, "O") == 0 || strcmp(res, "o") == 0 || strcmp(res, "oui") == 0 || strcmp(res, "Oui") == 0 || strcmp(res, "OUI") == 0) {
             file = fopen(filepath, "a");
@@ -117,7 +119,7 @@ void createDatabase(char *filename) {
             printf("Réponse invalide.\n");
         }
     }
-
+    
 }
 
 
