@@ -26,17 +26,15 @@ void sqlEntry(BinaryTree *tree, Database *db) {
 
         if (token != NULL) {
             if(strcmp(token, "INSERT") == 0) {
-                insert(tree, db, sqlRest);
+                if (verifyInsert(sqlRest)) insert(tree, db, sqlRest);
             } else if(strcmp(token, "SELECT") == 0) {
                 selectt(tree, sqlRest);
             } else if(strcmp(token, "DELETE") == 0) {
                 delete(tree,db,sqlRest);
             } else if(strcmp(token, "SHOW") == 0) {
                 show(tree);
-
             } else if(strcmp(token, "CREATE") == 0) {
                 createTable(tree, db, sqlRest);
-            
             } else if(strcmp(token, "DROP") == 0) {
                dropTable(tree, db, sqlRest);
             } else if(strcmp(token, "EXIT") == 0) {

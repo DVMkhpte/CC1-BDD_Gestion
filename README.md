@@ -43,14 +43,14 @@ Ce projet utilise une structure d’arbre binaire pour organiser les tables et l
 
 1.  Compilez et lancez le programme :
     ```bash
-    make run clear
+    make run clean
     ```
     ou
 
 	Compilez et lancez le programme avec des arguments :
 	
 	```bash
-    make run clear ARGS="Argument 1 Argument2"
+    make run clean ARGS="Argument 1 Argument2"
     ```
 
 ## Utilisation
@@ -70,9 +70,8 @@ Ce projet utilise une structure d’arbre binaire pour organiser les tables et l
 
 - Ajouter une valeur a une table :
 	```bash
-	INSERT INTO nom_de_table (nom_de_colonne1, nom de colonne2, ...) VALUES (valeur1,valeur2,...);
+	INSERT INTO nom_de_table (nom_de_colonne1, nom de colonne2, ...) VALUES (valeur1,valeur2,...); // Le nombre de colonne doit être égal au nombre de valeur.
 	```
-
 - Afficher toutes les valeurs d'une colonne spécifique :
 	```bash
 	SELECT * FROM nom_de_table FOR nom_de_colonne;

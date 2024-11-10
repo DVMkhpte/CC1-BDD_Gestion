@@ -57,3 +57,61 @@ void analyseCondition(BinaryTree *tree,char *tableName, char *column, char *oper
     if (valueType == FLOAT_VALUE) printf("Value float");
 
 }
+
+int verifyInsert(char *sqlRest) {
+    int columnCount = 0, valueCount = 0;
+
+    char *table = strstr(sqlRest, "INTO");
+    char *values = strstr(sqlRest, "VALUES");
+
+    if (table != NULL && values != NULL) {
+        table += strlen("INTO");
+        while (*table == ' ') {
+            table++;
+        }
+
+        char *startColumns = strstr(table, "(");
+        char *endColumns = strstr(startColumns, ")");
+        
+        if (startColumns && endColumns) {
+            startColumns++; 
+            
+            char columns[256];
+            strncpy(columns, startColumns, endColumns - startColumns);
+            columns[endColumns - startColumns] = '\0';
+
+            char *colToken = strtok(columns, ",");
+            while (colToken != NULL) {
+                columnCount++;
+                colToken = strtok(NULL, ",");
+            }
+        }
+
+        char *startValues = strstr(values, "(");
+        char *endValues = strstr(startValues, ")");
+
+        if (startValues && endValues) {
+            startValues++;
+            
+            char values[256];
+            strncpy(values, startValues, endValues - startValues);
+            values[endValues - startValues] = '\0';
+
+            char *valToken = strtok(values, ",");
+            while (valToken != NULL) {
+                valueCount++;
+                valToken = strtok(NULL, ",");
+            }
+        }
+
+        if (columnCount != valueCount) {
+            printf("Erreur : Le nombre de colonnes (%d) ne correspond pas au nombre de valeurs (%d).\n", columnCount, valueCount);
+            return 0;  
+        }
+
+        return 1;  
+    }
+
+    printf("Erreur : Format de la commande SQL invalide.\n");
+    return 0;  
+}
