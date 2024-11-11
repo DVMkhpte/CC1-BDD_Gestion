@@ -14,6 +14,8 @@ void createFirstMenu() {
     printf("| 2. Mettez un 2 pour USE une base de donnée                  | 1.Entrer le nom de la base de donnée            |\n");
     printf("| 3. Mettez un 3 pour Supprimer une base de donnée            |                                                 |\n");
     printf("+-------------------------------------------------------------+-------------------------------------------------+\n");
+
+    afficherFichiersDansDossier();
 }
 
 void createSecondMenu() {

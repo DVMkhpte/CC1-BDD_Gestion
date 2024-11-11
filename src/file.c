@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h> 
 #include "../include/file.h"
 #include "../include/menu.h"
 #include "../include/sql.h"
@@ -541,3 +542,23 @@ void deleteTableFromFile(BinaryTree *tree, char *tableName) {
     rename("database/temp.txt", filepath);
 }
 
+void afficherFichiersDansDossier() {
+    struct dirent *entry;
+    char *dossier = "database/";
+    DIR *dp = opendir(dossier); 
+
+    if (dp == NULL) {
+        printf("Erreur : impossible d'ouvrir le dossier %s.\n", dossier);
+        return;
+    }
+
+    printf("Database existante : \n");
+    
+    while ((entry = readdir(dp)) != NULL) {
+        if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
+            printf("- %s\n", entry->d_name); 
+        }
+    }
+
+    closedir(dp);  
+}
