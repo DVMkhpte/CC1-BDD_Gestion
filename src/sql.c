@@ -176,12 +176,17 @@ void insert(BinaryTree *tree, Database *db, char *sqlRest) {
                     if (valueType == INT_VALUE) {
                         
                         snprintf(databaseValue, sizeof(databaseValue), "values.%s.%s.%s", tableName,columns[valueCount],value);
+                        
+                        if (detectColumnType(tree, databaseValue) != 1){
+                            printf("Erreur : La valeur %s ne correspond pas au type de la colonne %s.\n", value, columns[valueCount]);
+                            return;
+                         }
+                           
                         if (writeInDatabase(databaseValue) != EXIT_SUCCESS) {
                             printf("Erreur lors de l'écriture des valeurs dans la base de données.\n");
                         }
                         
                         int intValue = atoi(value);
-                        printf("columns[] = %s\n", columns[valueCount]);
                         newValueNode = createNode(VALUE_NODE, databaseValue, INT_VALUE, &intValue);
                     
                     } else if (valueType == FLOAT_VALUE) {
@@ -189,14 +194,26 @@ void insert(BinaryTree *tree, Database *db, char *sqlRest) {
                         float floatValue = atof(value);
                         snprintf(databaseValue, sizeof(databaseValue), "values.%s.%s.%f", tableName,columns[valueCount],floatValue);
                         
+                        if (detectColumnType(tree, databaseValue) != 2){
+                            printf("Erreur : La valeur %s ne correspond pas au type de la colonne %s.\n", value, columns[valueCount]);
+                            return;
+                         }
+                        
                         if (writeInDatabase(databaseValue) != EXIT_SUCCESS) {
                             printf("Erreur lors de l'écriture des valeurs dans la base de données.\n");
                         }   
                         newValueNode = createNode(VALUE_NODE, databaseValue, FLOAT_VALUE, &floatValue);
                     
                     } else if (valueType == STRING_VALUE) {
-
+                        
                         snprintf(databaseValue, sizeof(databaseValue), "values.%s.%s.%s", tableName,columns[valueCount],value);
+                        
+                        if (detectColumnType(tree, databaseValue) != 3){
+                            printf("Erreur : La valeur %s ne correspond pas au type de la colonne %s.\n", value, columns[valueCount]);
+                            return;
+                         }
+                        
+                        
                         if (writeInDatabase(databaseValue) != EXIT_SUCCESS) {
                             printf("Erreur lors de l'écriture des valeurs dans la base de données.\n");
                         }
@@ -313,6 +330,13 @@ void createTable(BinaryTree *tree, Database *db, char *sqlRest) {
                         columnName[dashPosition - databaseColumn] = '\0';
 
                         strcpy(columnType, dashPosition + 1);
+                        printf("%s\n", columnType);
+
+                        if (strcmp(columnType, "INT ") == 0 || strcmp(columnType, "FLOAT ") == 0 || strcmp(columnType, "CHAR ") == 0) {
+                            printf("Type de colonne invalide pour la colonne %s.\n", columnName);
+                            deleteTableFromFile(tree,tableName);
+                            return;
+                        }
 
 
                         Node *newColumnNode = createNode(COLUMN_NODE, columnName, INT_VALUE, NULL);

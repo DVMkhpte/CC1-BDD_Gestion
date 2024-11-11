@@ -22,7 +22,7 @@ long  createKey(char *str) {
         sum += (int)str[i]; // On additionne toutes les valeurs ascii dans sum
     }
 
-    printf("Key creer pour %s: %ld\n", str, sum);
+    //printf("Key creer pour %s: %ld\n", str, sum);
 
     
     return sum;
@@ -105,4 +105,44 @@ int verifyInsert(char *sqlRest) {
 
     printf("Erreur : Format de la commande SQL invalide.\n");
     return 0;  
+}
+
+int detectColumnType(BinaryTree *tree, char *databaseValue) {
+    
+
+    char table[256], columnName[256], value[256];
+
+    sscanf(databaseValue, "values.%255[^.].%255[^.].%255s", table, columnName, value);
+    
+    char nameOfColumnKey[256]; 
+    snprintf(nameOfColumnKey, sizeof(nameOfColumnKey), "column.%s.%s", table, columnName);
+                    
+    long columnKey = createKey(nameOfColumnKey); 
+                    
+    Node *current = tree->root;
+    char columnType[6];
+
+    while (current != NULL) {
+        if (current->columnData.key == columnKey) { 
+            snprintf(columnType, sizeof(columnType), "%s", current->columnData.type);
+            break;
+        }
+        if (columnKey < current->columnData.key) {
+            current = current->left;
+        } else {
+            current = current->right;
+        }
+    }
+
+    if (strcmp(columnType, "INT") == 0) {
+        return 1;
+    }
+    if (strcmp(columnType, "FLOAT") == 0) {
+        return 2;
+    }
+    if (strcmp(columnType, "CHAR") == 0) {
+        return 3;
+    }
+
+    
 }

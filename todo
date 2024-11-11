@@ -1,6 +1,4 @@
-delete sur les float et les string
 Lors du DROP TABLE seulement les value se supprime de l'arbre (les colonne et la table ne sont pas trouver PAR LA RECHERCHE)
-lors de l'insert verifier que le type de la colonne correspond au type de la value
 Fonction pour afficher toutes les databases existante
 Mettre les commentaire
 
@@ -12,7 +10,3 @@ integrate them in your code when testing and report on some bug they
 found and how you patched them. You can see electric fence as well
 even though I have mixed feelings on it.
 
-
-Bug urgent
-Les float ne s'ecrive pas bien dans l'arbre
-Les str font des boucle infini

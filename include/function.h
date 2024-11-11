@@ -7,5 +7,6 @@ void replaceSpacesToDashes(char *str);
 long createKey(char *str);
 ValueType detectValueType(char *value);
 int verifyInsert(char *sqlRest);
+int detectColumnType(BinaryTree *tree, char *databaseValue);
 
 #endif

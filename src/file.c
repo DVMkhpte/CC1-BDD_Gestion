@@ -511,30 +511,23 @@ void deleteTableFromFile(BinaryTree *tree, char *tableName) {
 
             while (current != NULL) {
                 if (current->tableData.key == tableKey) {
-                    printf("Suppression de la table dans l'arbre\n");
                     deleteNode(&current);
                     break;
                 } else if (current->columnData.key == lineKey) {
-                    printf("Suppression de la colonne dans l'arbre\n");
                     deleteNode(&current);
                     break;
                 } else if (current->valueData.key == lineKey) {
-                    printf("Suppression de la valeur dans l'arbre\n");
                     deleteNode(&current);
                     break;
                 }
 
                 if (lineKey < current->valueData.key || tableKey < current->tableData.key || lineKey < current->columnData.key) {
                     current = current->left;
-                    printf("Go Gauche\n");
                 } else {
                     current = current->right;
-                    printf("Go Droite\n");
                 }
             }
         }
-
-        printf("Ligne suivante\n");
     }
 
     if (isValue != 0) {
