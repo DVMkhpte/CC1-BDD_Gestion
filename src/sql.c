@@ -33,6 +33,7 @@ void sqlEntry(BinaryTree *tree, Database *db) {
                 delete(tree,db,sqlRest);
             } else if(strcmp(token, "SHOW") == 0) {
                 show(tree);
+                displayTree(tree);
             } else if(strcmp(token, "CREATE") == 0) {
                 createTable(tree, db, sqlRest);
             } else if(strcmp(token, "DROP") == 0) {
@@ -169,7 +170,6 @@ void insert(BinaryTree *tree, Database *db, char *sqlRest) {
 
                     char databaseValue[270];
                     snprintf(databaseValue, sizeof(databaseValue), "values.%s.%s.%s", tableName,columns[valueCount],value);
-
                     if (writeInDatabase(databaseValue) != EXIT_SUCCESS) {
                         printf("Erreur lors de l'écriture des valeurs dans la base de données.\n");
                     }

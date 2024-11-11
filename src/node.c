@@ -30,14 +30,23 @@ Node *createNode(NodeType type, char *name, ValueType valueType, void *data) {
         switch (valueType) {
             case INT_VALUE:
                 newNode->valueData.data.intValue = *(int *)data;
+                //newNode->valueData.data.floatValue = 0.0f;
+                newNode->typeV = INT_VALUE;
                 break;
+
             case FLOAT_VALUE:
                 newNode->valueData.data.floatValue = *(float *)data;
+                //newNode->valueData.data.intValue = 0;
+                newNode->typeV = FLOAT_VALUE;
                 break;
+
             case STRING_VALUE:
                 strncpy(newNode->valueData.data.stringValue, (char *)data, sizeof(newNode->valueData.data.stringValue) - 1);
                 newNode->valueData.data.stringValue[sizeof(newNode->valueData.data.stringValue) - 1] = '\0';
-            break;
+                //newNode->valueData.data.floatValue = 0.0f;
+                //newNode->valueData.data.intValue = 0;
+                newNode->typeV = STRING_VALUE;
+                break;
         }
     
             newNode->valueData.key = key;
@@ -184,17 +193,16 @@ void displayNode(Node *node) {
             // Par exemple, on peut vérifier un des types de la valeur
             printf("Value: ");
             // On utilise un exemple, tu devras ajuster en fonction de ta logique
-            if (node->valueData.data.intValue != 0) {
+            if (node->typeV == INT_VALUE) {
                 printf("%d (KEY : %ld)\n", node->valueData.data.intValue, node->valueData.key);
 
-            } else if (node->valueData.data.floatValue != 0.0f) {
+            } else if (node->typeV == FLOAT_VALUE) {
                 printf("%f (KEY : %ld)\n", node->valueData.data.floatValue, node->valueData.key);
 
-            } else {
+            } else if (node->typeV == STRING_VALUE) {
                 printf("%s  (KEY : %ld)\n", node->valueData.data.stringValue, node->valueData.key);
-
-
             }
+            else {printf("Value vide\n");}
             break;
         default:
             break;

@@ -22,7 +22,7 @@ long  createKey(char *str) {
         sum += (int)str[i]; // On additionne toutes les valeurs ascii dans sum
     }
 
-    //printf("Key creer pour %s: %ld\n", str, sum);
+    printf("Key creer pour %s: %ld\n", str, sum);
 
     
     return sum;
@@ -38,9 +38,10 @@ ValueType detectValueType(char *value) {
 
     strtof(value, &endptr);
     if (*endptr == '\0' && strchr(value, '.')) {
+        printf("float detecter\n");
         return FLOAT_VALUE;
     }
-
+        printf("str detecter\n");
         return STRING_VALUE;
     
 

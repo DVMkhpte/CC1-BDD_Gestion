@@ -1,6 +1,7 @@
-Pourquoi on a 2 fois "Commande SQL" quand on USE une bdd apres l'avoir creer
 delete sur les float et les string
 Lors du DROP TABLE seulement les value se supprime de l'arbre (les colonne et la table ne sont pas trouver PAR LA RECHERCHE)
+lors de l'insert verifier que le type de la colonne correspond au type de la value
+Fonction pour afficher toutes les databases existante
 Mettre les commentaire
 
 Fonction de TEST

@@ -7,6 +7,7 @@ typedef enum { TABLE_NODE, COLUMN_NODE, VALUE_NODE } NodeType;
 
 typedef struct Node {
     NodeType type;
+    ValueType typeV;
     union {
         Table tableData;
         Column columnData;
