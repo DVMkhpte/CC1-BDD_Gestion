@@ -49,16 +49,6 @@ ValueType detectValueType(char *value) {
 }
 
 
-void analyseCondition(BinaryTree *tree,char *tableName, char *column, char *operator, char *value) {
-    ValueType valueType = detectValueType(value);
-
-        deleteValuesFromFileWithConditionInt(tree,tableName,column,operator,value);
-    
-    if (valueType == STRING_VALUE) printf("Value str");
-    if (valueType == FLOAT_VALUE) printf("Value float");
-
-}
-
 int verifyInsert(char *sqlRest) {
     int columnCount = 0, valueCount = 0;
 

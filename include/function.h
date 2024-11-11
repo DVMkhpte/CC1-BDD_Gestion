@@ -6,7 +6,6 @@
 void replaceSpacesToDashes(char *str);
 long createKey(char *str);
 ValueType detectValueType(char *value);
-void analyseCondition(BinaryTree *tree, char *tableName, char *column, char *operator, char *value);
 int verifyInsert(char *sqlRest);
 
 #endif

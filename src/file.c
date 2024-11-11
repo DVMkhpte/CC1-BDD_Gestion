@@ -285,7 +285,7 @@ void deleteValuesFromFile(BinaryTree *tree, char *tableName) {
 
 }
 
-void deleteValuesFromFileWithConditionInt(BinaryTree *tree, char *tableName, char *column, char *operator, char *value) {
+void deleteValuesFromFileWithCondition(BinaryTree *tree, char *tableName, char *column, char *operator, char *value, ValueType typeV) {
     char filepath[256];
     snprintf(filepath, sizeof(filepath), "database/%s", fileName);
 
@@ -306,10 +306,16 @@ void deleteValuesFromFileWithConditionInt(BinaryTree *tree, char *tableName, cha
     char valuesPrefix[512];
     char lineValue[256];
     int isValue = 0;
-    int targetValue = atoi(value);
 
-    printf("operator : %s\n", operator);
+    int targetValueInt = 0;
+    float targetValueFloat = 0.0f;
 
+    if (typeV == INT_VALUE) {
+        targetValueInt = atoi(value);
+    } else if (typeV == FLOAT_VALUE) {
+        targetValueFloat = atof(value);
+    }
+    
     if (strcmp(operator, "=") == 0) {
         snprintf(valuesPrefix, sizeof(valuesPrefix), "values.%s.%s.%s", tableName, column, value);
 
@@ -337,29 +343,52 @@ void deleteValuesFromFileWithConditionInt(BinaryTree *tree, char *tableName, cha
             }
         }
     } else if (strcmp(operator, "<") == 0) {
-
         while (fgets(line, sizeof(line), file) != NULL) {
             if (strncmp(line, "values", 6) == 0) {  
                 sscanf(line, "values.%*[^.].%*[^.].%s", lineValue);
                 int currentValue = atoi(lineValue);
 
-                if (currentValue >= targetValue) {
-                    fputs(line, tempFile);
-                } else {
-                    isValue++;
-                    line[strcspn(line, "\n")] = '\0';
-                    long valueKey = createKey(line);
-                    Node *current = tree->root;
+                if (typeV == INT_VALUE) {
+                    if (currentValue >= targetValueInt) {
+                        fputs(line, tempFile);
+                    } else {
+                        isValue++;
+                        line[strcspn(line, "\n")] = '\0';
+                        long valueKey = createKey(line);
+                        Node *current = tree->root;
 
-                    while (current != NULL) {
-                        if (current->valueData.key == valueKey) {
-                            deleteNode(&current);
-                            break;
+                        while (current != NULL) {
+                            if (current->valueData.key == valueKey) {
+                                deleteNode(&current);
+                                break;
+                            }
+                            if (valueKey < current->valueData.key) {
+                                current = current->left;
+                            } else {
+                                current = current->right;
+                            }
                         }
-                        if (valueKey < current->valueData.key) {
-                            current = current->left;
-                        } else {
-                            current = current->right;
+                    }
+                } else if (typeV == FLOAT_VALUE) {
+                    float currentValueFloat = atof(lineValue);
+                    if (currentValueFloat >= targetValueFloat) {
+                        fputs(line, tempFile);
+                    } else {
+                        isValue++;
+                        line[strcspn(line, "\n")] = '\0';
+                        long valueKey = createKey(line);
+                        Node *current = tree->root;
+
+                        while (current != NULL) {
+                            if (current->valueData.key == valueKey) {
+                                deleteNode(&current);
+                                break;
+                            }
+                            if (valueKey < current->valueData.key) {
+                                current = current->left;
+                            } else {
+                                current = current->right;
+                            }
                         }
                     }
                 }
@@ -367,30 +396,54 @@ void deleteValuesFromFileWithConditionInt(BinaryTree *tree, char *tableName, cha
                 fputs(line, tempFile);
             }
         }
+
     } else if (strcmp(operator, ">") == 0) {
-
         while (fgets(line, sizeof(line), file) != NULL) {
             if (strncmp(line, "values", 6) == 0) {  
                 sscanf(line, "values.%*[^.].%*[^.].%s", lineValue);
                 int currentValue = atoi(lineValue);
 
-                if (currentValue <= targetValue) {
-                    fputs(line, tempFile);
-                } else {
-                    isValue++;
-                    line[strcspn(line, "\n")] = '\0';
-                    long valueKey = createKey(line);
-                    Node *current = tree->root;
+                if (typeV == INT_VALUE) {
+                    if (currentValue <= targetValueInt) {
+                        fputs(line, tempFile);
+                    } else {
+                        isValue++;
+                        line[strcspn(line, "\n")] = '\0';
+                        long valueKey = createKey(line);
+                        Node *current = tree->root;
 
-                    while (current != NULL) {
-                        if (current->valueData.key == valueKey) {
-                            deleteNode(&current);
-                            break;
+                        while (current != NULL) {
+                            if (current->valueData.key == valueKey) {
+                                deleteNode(&current);
+                                break;
+                            }
+                            if (valueKey < current->valueData.key) {
+                                current = current->left;
+                            } else {
+                                current = current->right;
+                            }
                         }
-                        if (valueKey < current->valueData.key) {
-                            current = current->left;
-                        } else {
-                            current = current->right;
+                    }
+                } else if (typeV == FLOAT_VALUE) {
+                    float currentValueFloat = atof(lineValue);
+                    if (currentValueFloat <= targetValueFloat) {
+                        fputs(line, tempFile);
+                    } else {
+                        isValue++;
+                        line[strcspn(line, "\n")] = '\0';
+                        long valueKey = createKey(line);
+                        Node *current = tree->root;
+
+                        while (current != NULL) {
+                            if (current->valueData.key == valueKey) {
+                                deleteNode(&current);
+                                break;
+                            }
+                            if (valueKey < current->valueData.key) {
+                                current = current->left;
+                            } else {
+                                current = current->right;
+                            }
                         }
                     }
                 }
@@ -398,6 +451,7 @@ void deleteValuesFromFileWithConditionInt(BinaryTree *tree, char *tableName, cha
                 fputs(line, tempFile);
             }
         }
+
     }
 
     fclose(file);

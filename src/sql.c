@@ -168,24 +168,39 @@ void insert(BinaryTree *tree, Database *db, char *sqlRest) {
                 while (value != NULL) {
                     while (*value == ' ') value++;
 
-                    char databaseValue[270];
-                    snprintf(databaseValue, sizeof(databaseValue), "values.%s.%s.%s", tableName,columns[valueCount],value);
-                    if (writeInDatabase(databaseValue) != EXIT_SUCCESS) {
-                        printf("Erreur lors de l'écriture des valeurs dans la base de données.\n");
-                    }
-
                     ValueType valueType = detectValueType(value);
                     Node *newValueNode;
-
+                    
+                    char databaseValue[270];
+                    
                     if (valueType == INT_VALUE) {
-                        int intValue = strtol(value, NULL, 10);
+                        
+                        snprintf(databaseValue, sizeof(databaseValue), "values.%s.%s.%s", tableName,columns[valueCount],value);
+                        if (writeInDatabase(databaseValue) != EXIT_SUCCESS) {
+                            printf("Erreur lors de l'écriture des valeurs dans la base de données.\n");
+                        }
+                        
+                        int intValue = atoi(value);
                         printf("columns[] = %s\n", columns[valueCount]);
                         newValueNode = createNode(VALUE_NODE, databaseValue, INT_VALUE, &intValue);
+                    
                     } else if (valueType == FLOAT_VALUE) {
-                        float floatValue = strtof(value, NULL);
+                        
+                        float floatValue = atof(value);
+                        snprintf(databaseValue, sizeof(databaseValue), "values.%s.%s.%f", tableName,columns[valueCount],floatValue);
+                        
+                        if (writeInDatabase(databaseValue) != EXIT_SUCCESS) {
+                            printf("Erreur lors de l'écriture des valeurs dans la base de données.\n");
+                        }   
                         newValueNode = createNode(VALUE_NODE, databaseValue, FLOAT_VALUE, &floatValue);
+                    
                     } else if (valueType == STRING_VALUE) {
-                        newValueNode = createNode(VALUE_NODE, databaseValue, STRING_VALUE, value);
+
+                        snprintf(databaseValue, sizeof(databaseValue), "values.%s.%s.%s", tableName,columns[valueCount],value);
+                        if (writeInDatabase(databaseValue) != EXIT_SUCCESS) {
+                            printf("Erreur lors de l'écriture des valeurs dans la base de données.\n");
+                        }
+                        newValueNode = createNode(VALUE_NODE, databaseValue, STRING_VALUE, &value);
                     }
 
                     insertNode(tree,newValueNode);
@@ -422,8 +437,9 @@ void delete(BinaryTree *tree, Database *db, char *sqlRest) {
                     printf("Erreur : La colonne %s presente dans la condition n'existe pas dans la table %s.\n", column, tableName);
                     return;
                 }
-                
-                analyseCondition(tree,tableName,column,operator,value);
+
+                ValueType valueType = detectValueType(value);
+                deleteValuesFromFileWithCondition(tree,tableName,column,operator,value,valueType);
                 
                 } else {
                 printf("Condition mal formée.\n");
@@ -620,11 +636,11 @@ void showValue(BinaryTree *tree, Node *node, char *tableName, char *columnName) 
 
     if (node->type == VALUE_NODE) {
         char fullValueName[512];
-        if (node->valueData.data.intValue != 0) {
+        if (node->typeV == INT_VALUE) {
             snprintf(fullValueName, sizeof(fullValueName), "values.%s.%s.%d", tableName, columnName, node->valueData.data.intValue);
-        } else if (node->valueData.data.floatValue != 0.0f) {
+        } else if (node->typeV == FLOAT_VALUE) {
             snprintf(fullValueName, sizeof(fullValueName), "values.%s.%s.%f", tableName, columnName, node->valueData.data.floatValue);
-        } else if (node->valueData.data.stringValue != NULL) {
+        } else if (node->typeV == STRING_VALUE) {
             snprintf(fullValueName, sizeof(fullValueName), "values.%s.%s.%s", tableName, columnName, node->valueData.data.stringValue);
         }
 
@@ -636,11 +652,11 @@ void showValue(BinaryTree *tree, Node *node, char *tableName, char *columnName) 
             if (current->valueData.key == valueKey) {
 
                 printf("Valeur: ");
-                if (node->valueData.data.intValue != 0) {
+                if (node->typeV == INT_VALUE) {
                     printf("%d\n", node->valueData.data.intValue);  
-                } else if (node->valueData.data.stringValue != NULL) {
+                } else if (node->typeV == STRING_VALUE) {
                     printf("%s\n", node->valueData.data.stringValue);  
-                } else if (node->valueData.data.floatValue != 0.0f) {
+                } else if (node->typeV == FLOAT_VALUE) {
                     printf("%f\n", node->valueData.data.floatValue);  
                 }
             }
