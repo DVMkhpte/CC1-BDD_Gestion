@@ -468,7 +468,7 @@ void deleteTableFromFile(BinaryTree *tree, char *tableName) {
 
     file = fopen(filepath, "r");
     if (!file) {
-        printf("Erreur lors de l'ouverture de la base de donnée\n");
+        printf("Erreur lors de l'ouverture de la base de données\n");
         return;
     }
 
@@ -480,24 +480,30 @@ void deleteTableFromFile(BinaryTree *tree, char *tableName) {
     }
 
     char line[512];
-    char tablePrefix[512], columnPrefix[512], valuesPrefix[512];
+    char tablePrefix[256], columnPrefix[256], valuesPrefix[256];
     int8_t isValue = 0;
 
     snprintf(tablePrefix, sizeof(tablePrefix), "table.%s", tableName);
     snprintf(columnPrefix, sizeof(columnPrefix), "column.%s", tableName);
     snprintf(valuesPrefix, sizeof(valuesPrefix), "values.%s", tableName);
 
-    long tableKey = createKey(tablePrefix);
+    long tableKey = createKey(tableName);
 
     while (fgets(line, sizeof(line), file) != NULL) {
-        if (strncmp(line, tablePrefix, strlen(tablePrefix)) != 0 &&
-            strncmp(line, columnPrefix, strlen(columnPrefix)) != 0 &&
-            strncmp(line, valuesPrefix, strlen(valuesPrefix)) != 0) {
-            fputs(line, tempFile);  
-        } else {
-            isValue++;
-            line[strcspn(line, "\n")] = '\0';
+        line[strcspn(line, "\n")] = '\0';
 
+        if (strncmp(line, tablePrefix, strlen(tablePrefix)) == 0) {
+            isValue++;
+            Node *current = tree->root;
+            while (current != NULL) {
+                if (current->tableData.key == tableKey) {
+                    printf("Suppression du nœud de table avec key = %ld\n", tableKey);
+                    deleteNode(&current);
+                    break;
+                }
+                current = (tableKey < current->tableData.key) ? current->left : current->right;
+            }
+        } else if (strncmp(line, columnPrefix, strlen(columnPrefix)) == 0) {
             char *suffixes[] = {"-INT", "-CHAR", "-FLOAT"};
             for (int i = 0; i < 3; i++) {
                 char *pos = strstr(line, suffixes[i]);
@@ -506,28 +512,31 @@ void deleteTableFromFile(BinaryTree *tree, char *tableName) {
                     break;
                 }
             }
-
-            long lineKey = createKey(line);
+            long columnKey = createKey(line);
             Node *current = tree->root;
-
             while (current != NULL) {
-                if (current->tableData.key == tableKey) {
-                    deleteNode(&current);
-                    break;
-                } else if (current->columnData.key == lineKey) {
-                    deleteNode(&current);
-                    break;
-                } else if (current->valueData.key == lineKey) {
+                if (current->columnData.key == columnKey) {
+                    printf("Suppression du nœud de colonne avec key = %ld\n", columnKey);
                     deleteNode(&current);
                     break;
                 }
-
-                if (lineKey < current->valueData.key || tableKey < current->tableData.key || lineKey < current->columnData.key) {
-                    current = current->left;
-                } else {
-                    current = current->right;
-                }
+                current = (columnKey < current->columnData.key) ? current->left : current->right;
             }
+        } else if (strncmp(line, valuesPrefix, strlen(valuesPrefix)) == 0) {
+            isValue++;
+            long valueKey = createKey(line);
+            Node *current = tree->root;
+            while (current != NULL) {
+                if (current->valueData.key == valueKey) {
+                    printf("Suppression du nœud de valeur avec key = %ld\n", valueKey);
+                    deleteNode(&current);
+                    break;
+                }
+                current = (valueKey < current->valueData.key) ? current->left : current->right;
+            }
+        } else {
+            fputs(line, tempFile);
+            fputc('\n', tempFile);
         }
     }
 
@@ -542,7 +551,7 @@ void deleteTableFromFile(BinaryTree *tree, char *tableName) {
     rename("database/temp.txt", filepath);
 }
 
-void afficherFichiersDansDossier() {
+void displayDatabase() {
     struct dirent *entry;
     char *dossier = "database/";
     DIR *dp = opendir(dossier); 

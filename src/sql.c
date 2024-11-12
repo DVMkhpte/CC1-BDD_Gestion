@@ -514,8 +514,6 @@ void dropTable(BinaryTree *tree, Database *db, char *sqlRest) {
                 printf("Erreur : La table %s n'existe pas.\n", table);
                 return;
             }
-
-
             deleteTableFromFile(tree, table);
 
     } else {

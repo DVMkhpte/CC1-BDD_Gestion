@@ -43,7 +43,4 @@ typedef struct Database {
 
 void initDatabase(Database *db, char *name);
 
-
-void displayDatabase(Database *db);
-
 #endif 

@@ -1,5 +1,4 @@
-Lors du DROP TABLE seulement les value se supprime de l'arbre (les colonne et la table ne sont pas trouver PAR LA RECHERCHE)
-Fonction pour afficher toutes les databases existante
+Lors du DROP TABLE seulement les values se supprime de l'arbre (les colonne et la table ne sont pas trouver PAR LA RECHERCHE)
 Mettre les commentaire
 
 Fonction de TEST

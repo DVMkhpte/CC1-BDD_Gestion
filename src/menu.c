@@ -15,7 +15,7 @@ void createFirstMenu() {
     printf("| 3. Mettez un 3 pour Supprimer une base de donnée            |                                                 |\n");
     printf("+-------------------------------------------------------------+-------------------------------------------------+\n");
 
-    afficherFichiersDansDossier();
+    displayDatabase();
 }
 
 void createSecondMenu() {
