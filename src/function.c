@@ -7,7 +7,7 @@
 #include "../include/file.h"
 #include "../include/node.h"
 
-void replaceSpacesToDashes(char *str) {
+void replaceSpacesToDashes(char *str) { // Fonction qui a pour but de remplacer les espaces par des tirets
     for (int i = 0; str[i] != '\0'; i++) {
         if (str[i] == ' ') {
             str[i] = '-';
@@ -15,20 +15,17 @@ void replaceSpacesToDashes(char *str) {
     }
 }
 
-long  createKey(char *str) {
+long createKey(char *str) { // Fonction qui a pour but de créer une clé qui sera utilisée pour les recherches dans l'arbre 
     long  sum = 0;
     
     for (int i = 0; str[i] != '\0'; i++) {
         sum += (int)str[i]; // On additionne toutes les valeurs ascii dans sum
     }
 
-    printf("Key creer pour %s: %ld\n", str, sum);
-
-    
     return sum;
 }
 
-ValueType detectValueType(char *value) {
+ValueType detectValueType(char *value) { // Fonction qui a pour but de détecter le type de valeur char* qui lui est donnée
     
     char *endptr;
     strtol(value, &endptr, 10);
@@ -41,13 +38,10 @@ ValueType detectValueType(char *value) {
         return FLOAT_VALUE;
     }
         return STRING_VALUE;
-    
-
-    
 }
 
 
-int verifyInsert(char *sqlRest) {
+int verifyInsert(char *sqlRest) { // Fonction qui a pour but de verifier que la requete SQL de l'insert a bien le meme nombre de valeurs que de colonnes
     int columnCount = 0, valueCount = 0;
 
     char *table = strstr(sqlRest, "INTO");
@@ -105,24 +99,24 @@ int verifyInsert(char *sqlRest) {
     return 0;  
 }
 
-int detectColumnType(BinaryTree *tree, char *databaseValue) {
+int detectColumnType(BinaryTree *tree, char *databaseValue) {  // Fonction qui va recuperer le type d'une colonne present dans le nœu qui lui est associé en fonction de son nom
     
 
     char table[256], columnName[256], value[256];
 
-    sscanf(databaseValue, "values.%255[^.].%255[^.].%255s", table, columnName, value);
+    sscanf(databaseValue, "values.%255[^.].%255[^.].%255s", table, columnName, value); // Recuperation du nom de la colonne
     
     char nameOfColumnKey[256]; 
     snprintf(nameOfColumnKey, sizeof(nameOfColumnKey), "column.%s.%s", table, columnName);
                     
-    long columnKey = createKey(nameOfColumnKey); 
+    long columnKey = createKey(nameOfColumnKey); // Creation de la clé pour recuperer le nœu qui lui est associé
                     
     Node *current = tree->root;
     char columnType[6];
 
     while (current != NULL) {
         if (current->columnData.key == columnKey) { 
-            snprintf(columnType, sizeof(columnType), "%s", current->columnData.type);
+            snprintf(columnType, sizeof(columnType), "%s", current->columnData.type); // Recuperation du type de la colonne dans le nœu
             break;
         }
         if (columnKey < current->columnData.key) {

@@ -4,19 +4,19 @@
 #include "../include/node.h"
 #include "../include/function.h"
 
-Node *createNode(NodeType type, char *name, ValueType valueType, void *data) {
+Node *createNode(NodeType type, char *name, ValueType valueType, void *data) {  // Fonction pour creer un nœu
     Node *newNode = (Node *)malloc(sizeof(Node));
     if (newNode == NULL) {
         printf("Erreur d'allocation de mémoire pour le nœud.\n");
         exit(EXIT_FAILURE);
     }
-    newNode->type = type;
+    newNode->type = type;  // TABLE / COLUMN / VALUE
     newNode->left = NULL;
     newNode->right = NULL;
 
-    long key = createKey(name);
+    long key = createKey(name);  // Creation de la clé d'identification du nœu
     
-    switch (type) {
+    switch (type) {  // En fonction du type du nœu on ecrit les informations dans les champs correspondants
         case TABLE_NODE:
             strncpy(newNode->tableData.tableName, name, sizeof(newNode->tableData.tableName) - 1);
             newNode->tableData.key = key;
@@ -56,23 +56,22 @@ Node *createNode(NodeType type, char *name, ValueType valueType, void *data) {
     return newNode;
 }
 
-void initBinaryTree(BinaryTree *tree) {
+void initBinaryTree(BinaryTree *tree) { // Fonction d'initialisation du nœu racine
     tree->root = NULL; // Initialise l'arbre à vide
 }
 
-void insertNode(BinaryTree *tree, Node *newNode) {
-    if (tree->root == NULL) {
+void insertNode(BinaryTree *tree, Node *newNode) { // Fonction pour inserer un nœu dans l'arbre en fonction de sa clé
+    if (tree->root == NULL) { // Si l'arbre est vide le nœu devient racine
         tree->root = newNode;
-    } else {
+    } else {  // Sinon on le place dans l'arbre en fonction de la clé
         Node *current = tree->root;
         Node *parent = NULL;
 
         while (current != NULL) {
             parent = current;
 
-            
-            switch (newNode->type) {
-                case TABLE_NODE:
+            switch (newNode->type) {   // La clé etant un long int on peut placer le nœu dans l'arbre en fonction de la clé avec une condition de > et de <
+                case TABLE_NODE:       // Droite pour les clés plus grandes, gauche pour les clés plus petites
                     if (newNode->tableData.key < current->tableData.key) {
                         current = current->left;
                     } else {
@@ -99,7 +98,7 @@ void insertNode(BinaryTree *tree, Node *newNode) {
         }
 
         
-        switch (newNode->type) {
+        switch (newNode->type) {  // Quand on a trouver la position du nœu on l'insere dans l'arbre
             case TABLE_NODE:
                 if (newNode->tableData.key < parent->tableData.key) {
                     parent->left = newNode;
@@ -127,19 +126,18 @@ void insertNode(BinaryTree *tree, Node *newNode) {
     }
 }
 
-void deleteNode(Node **node) {
+void deleteNode(Node **node) {  // Fonction pour supprimer un nœu de l'arbre et pour faire en sorte que l'arbre reste valide (Pas de trou dans l'arbre)
     if (*node == NULL) return;
 
-    if ((*node)->left == NULL) {
+    if ((*node)->left == NULL) {  // Si le nœu à supprimer n'a pas de nœu gauche celui a droite peut le remplacer
         Node *temp = (*node)->right;
         free(*node);
         *node = temp;
-    } else if ((*node)->right == NULL) {
+    } else if ((*node)->right == NULL) { // Si le nœu à supprimer n'a pas de nœu droite celui a gauche peut le remplacer
         Node *temp = (*node)->left;
         free(*node);
         *node = temp; 
     } else {
-        
         Node *temp = (*node)->right;
         while (temp->left != NULL) {
             temp = temp->left;
@@ -151,7 +149,7 @@ void deleteNode(Node **node) {
     }
 }
 
-void freeTree(Node *node) {
+void freeTree(Node *node) { // Fonction pour supprimer l'arbre lors de la sortie du programme
     if (node == NULL) {
         return;
     }
@@ -166,7 +164,7 @@ void freeTree(Node *node) {
 
 
 /*--------------------------------------------------------------               DEBUG FONCTION               -------------------------------------------------------------EXIT
-Q*/
+*/
 
 
 

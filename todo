@@ -1,6 +1,3 @@
-Lors du DROP TABLE seulement les values se supprime de l'arbre (les colonne et la table ne sont pas trouver PAR LA RECHERCHE)
-Mettre les commentaire
-
 Fonction de TEST
 One of the best way to find bugs (whether security or not) is to
 use dynamic security tools thus

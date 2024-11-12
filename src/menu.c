@@ -32,7 +32,7 @@ void createSecondMenu() {
     printf("+-----------------------------------------+\n");
 }
 
-void verifFirstMenu(char *argv[]) {
+void verifFirstMenu(char *argv[]) { // En fonction des argv on creer, use ou supprime une base de donnée
     switch (argv[1][0]) {
         case '1':
             verifFileExist(argv[2]);
@@ -44,7 +44,6 @@ void verifFirstMenu(char *argv[]) {
             break;
         case '3':
             verifFileExistD(argv[2]);
-
             break;
         default:
             createFirstMenu();
