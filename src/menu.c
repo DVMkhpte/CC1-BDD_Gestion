@@ -4,6 +4,7 @@
 #include "../include/menu.h"
 #include "../include/file.h"
 #include "../include/sql.h"
+#include "../include/test.h"
 
 
 void createFirstMenu() {
@@ -44,6 +45,9 @@ void verifFirstMenu(char *argv[]) { // En fonction des argv on creer, use ou sup
             break;
         case '3':
             verifFileExistD(argv[2]);
+            break;
+        case '4':
+            test();
             break;
         default:
             createFirstMenu();

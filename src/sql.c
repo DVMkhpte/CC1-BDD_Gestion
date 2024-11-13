@@ -332,7 +332,6 @@ void createTable(BinaryTree *tree, Database *db, char *sqlRest) {  // Fonction p
                             return;
                         }
 
-
                         Node *newColumnNode = createNode(COLUMN_NODE, columnName, INT_VALUE, NULL);  // Creation du nœu de la colonne
                         strcpy(newColumnNode->columnData.columnName, columnName);
                         strcpy(newColumnNode->columnData.type, columnType);
