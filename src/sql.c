@@ -463,7 +463,9 @@ void delete(BinaryTree *tree, Database *db, char *sqlRest) {  // Fonction pour s
 
     } else {
         printf("Mauvais formatage de la requete : FROM manquant !!\n");
+        return;
     }
+    
 }
 
 void dropTable(BinaryTree *tree, Database *db, char *sqlRest) {  // Fonction pour supprimer une table ainsi que toutes les données qui y sont stockées
@@ -538,7 +540,7 @@ void showNode(Node *node, char *currentTable) { // Fonction récursive qui va af
         snprintf(fullColumnName, sizeof(fullColumnName), "column.%s.%s", currentTable, node->columnData.columnName);
         
         long columnKey = createKey(fullColumnName);
-        
+
         if (node->columnData.key == columnKey) {
             printf(" - %s (%s)\n", node->columnData.columnName, node->columnData.type);
         }
@@ -564,8 +566,8 @@ void selectt(BinaryTree *tree, char *sqlRest) {  // Fonction qui va afficher les
             return;
         }
 
-        strncpy(tableName, from, endTableName - from - 1);
-        tableName[endTableName - from] = '\0';
+        strncpy(tableName, from, endTableName - from);
+        tableName[endTableName - from - 1] = '\0';
 
         endTableName += strlen("FOR");
         while (*endTableName == ' ') endTableName++;
@@ -578,6 +580,8 @@ void selectt(BinaryTree *tree, char *sqlRest) {  // Fonction qui va afficher les
             if (len > 0 && columnName[len - 1] == ';') {
                 columnName[len - 1] = '\0'; 
             }
+
+            
 
         long tableKey = createKey(tableName);
         Node *current = tree->root;

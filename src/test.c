@@ -8,7 +8,7 @@
 #include "../include/file.h"
 #include "../include/function.h"
 
-Node* searchNode(Node* root, long key) {
+Node *searchNode(Node* root, long key) {
     if (root == NULL) {
         return NULL; 
     }
@@ -28,6 +28,19 @@ Node* searchNode(Node* root, long key) {
     } else {
         return searchNode(root->right, key);
     }
+}
+
+Node *svalue(Node* current, long valueKey) {
+                        while (current != NULL) {
+                            if (current->valueData.key == valueKey) {
+                                return current;
+                            }
+                            if (valueKey < current->valueData.key) {
+                                current = current->left;
+                            } else {
+                                current = current->right;
+                            }
+                        }
 }
 
 void test() {
@@ -59,45 +72,71 @@ void test() {
     Node *columnNode;
     
     columnNode = createNode(COLUMN_NODE, "column.tableTest.int", INT_VALUE, NULL); 
-    strcpy(columnNode->columnData.columnName, "column.tableTest.int");
+    strcpy(columnNode->columnData.columnName, "int");
     strcpy(columnNode->columnData.type, "INT");
     insertNode(&tree, columnNode);
     assert(searchNode(tree.root, createKey("column.tableTest.int")) != NULL);
-    printf("Test de la création et insertion de colonne INT réussi.\n");
+    printf("Test de la création et insertion de la colonne INT réussi.\n");
 
     columnNode = createNode(COLUMN_NODE, "column.tableTest.float", FLOAT_VALUE, NULL); 
-    strcpy(columnNode->columnData.columnName, "column.tableTest.float");
+    strcpy(columnNode->columnData.columnName, "float");
     strcpy(columnNode->columnData.type, "FLOAT");
     insertNode(&tree, columnNode);
     assert(searchNode(tree.root, createKey("column.tableTest.float")) != NULL);
-    printf("Test de la création et insertion de colonne FLOAT réussi.\n");
+    printf("Test de la création et insertion de la colonne FLOAT réussi.\n");
 
     columnNode = createNode(COLUMN_NODE, "column.tableTest.str", STRING_VALUE, NULL); 
-    strcpy(columnNode->columnData.columnName, "column.tableTest.str");
+    strcpy(columnNode->columnData.columnName, "str");
     strcpy(columnNode->columnData.type, "CHAR");
     insertNode(&tree, columnNode);
     assert(searchNode(tree.root, createKey("column.tableTest.str")) != NULL);
-    printf("Test de la création et insertion de colonne CHAR réussi.\n");
+    printf("Test de la création et insertion de la colonne CHAR réussi.\n");
 
     // Test d'insertion de valeurs dans la table
     Node *valueNode;
-    int intValue = 123;
-    float floatValue = 3.14f;
+    int intValue = atoi("123");
+    float floatValue = atof("3.14");
 
     valueNode = createNode(VALUE_NODE, "values.tableTest.int.123", INT_VALUE, &intValue);
     insertNode(&tree, valueNode);
-    assert(searchNode(tree.root, createKey("values.tableTest.int.123")) != NULL);
-    printf("Test d'insertion de valeur INT réussi.\n");
+    assert(svalue(tree.root, createKey("values.tableTest.int.123")) != NULL);
+    printf("Test d'insertion de valeur 123 dans INT réussi.\n");
 
-    valueNode = createNode(VALUE_NODE, "values.tableTest.float.3.14", FLOAT_VALUE, &floatValue);
+    valueNode = createNode(VALUE_NODE, "values.tableTest.float.3.140000", FLOAT_VALUE, &floatValue);
     insertNode(&tree, valueNode);
-    assert(searchNode(tree.root, createKey("values.tableTest.float.3.14")) != NULL);
-    printf("Test d'insertion de valeur FLOAT réussi.\n");
+    assert(svalue(tree.root, createKey("values.tableTest.float.3.140000")) != NULL);
+    printf("Test d'insertion de valeur 3.14 dans FLOAT réussi.\n");
 
     valueNode = createNode(VALUE_NODE, "values.tableTest.str.testValue", STRING_VALUE, "testValue");
     insertNode(&tree, valueNode);
-    assert(searchNode(tree.root, createKey("values.tableTest.str.testValue")) != NULL);
-    printf("Test d'insertion de valeur CHAR réussi.\n");
+    assert(svalue(tree.root, createKey("values.tableTest.str.testValue")) != NULL);
+    printf("Test d'insertion de valeur testValue dansCHAR réussi.\n");
+
+    // Test de Show sur la database
+    printf("Test de la fonction SHOW sur la database.\n");
+    show(&tree);
+
+    // Test de SELECT sur la table tableTest pour une colonne
+    printf("Test de la fonction SELECT sur la table tableTest pour la colonne int.\n");
+    selectt(&tree, "SELECT * FROM tableTest FOR int;");
+
+    printf("Test de la fonction SELECT sur la table tableTest pour la colonne float.\n");
+    selectt(&tree, "SELECT * FROM tableTest FOR float;");
+
+    printf("Test de la fonction SELECT sur la table tableTest pour la colonne str.\n");
+    selectt(&tree, "SELECT * FROM tableTest FOR str;");
+
+
+    // Test de DELETE sur la table tableTest pour les differentes colonnes
+    printf("Test de la fonction DELETE sur la table tableTest pour les differentes colonnes.\n");
+    valueNode = svalue(tree.root, createKey("values.tableTest.int.123"));
+    deleteNode(&valueNode);
+    valueNode = svalue(tree.root, createKey("values.tableTest.float.3.140000"));
+    deleteNode(&valueNode);
+    valueNode = svalue(tree.root, createKey("values.tableTest.str.testValue"));
+    deleteNode(&valueNode);
+    printf("Test de la suppression des 3 valeurs creer ulterieurement réussi.\n");
+    printf("\n");
 
     printf("Tous les tests ont réussi.\n");
 }
