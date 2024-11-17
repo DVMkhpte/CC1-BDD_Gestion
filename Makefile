@@ -8,7 +8,7 @@ SRC = src/*
 CC = gcc
 
 # Option de compilation
-CFLAGS = -w
+CFLAGS = -w   # Pour enlever tous les warnings
 
 # Cibles
 all: $(EXEC)
