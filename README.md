@@ -1,6 +1,6 @@
 # Gestion de Base de Données en C avec Arbre Binaire
 
-Ce projet implémente un système de gestion de base de données (SGBD) en C, avec une structure de données en arbre binaire pour le stockage en mémoire, et une persistance des données via un fichier texte. Le projet permet de gérer des tables, des colonnes et des valeurs, et inclut des fonctionnalités pour les requêtes `SELECT`, `INSERT`, et `DELETE`.
+Ce projet implémente un système de gestion de base de données (SGBD) en C, avec une structure de données en arbre binaire pour le stockage en mémoire, et une persistance des données via un fichier texte. Le projet permet de gérer des tables, des colonnes et des valeurs, et inclut des fonctionnalités pour les requêtes `SELECT`, `INSERT`,  `DELETE`, `CREATE TABLE`, `DROP`et `SHOW\.
 
 ## Sommaire
 
@@ -39,7 +39,7 @@ Ce projet utilise une structure d’arbre binaire pour organiser les tables et l
    git clone https://github.com/DVMkhpte/CC1-BDD_Gestion
    ```
 
-### Compilation et Execution du programme
+### Compilation et Exécution du programme
 
 1.  Compilez et lancez le programme :
     ```bash
@@ -53,6 +53,11 @@ Ce projet utilise une structure d’arbre binaire pour organiser les tables et l
     make run clean ARGS="Argument 1 Argument2"
     ```
 
+Lancer les fonctions de test :
+	
+```bash
+	make run clean ARGS="4 test" # Le nom de la base de donnée de change rien
+```
 ## Utilisation
 
 ### Commandes Disponibles
@@ -70,7 +75,7 @@ Ce projet utilise une structure d’arbre binaire pour organiser les tables et l
 
 - Ajouter une valeur a une table :
 	```bash
-	INSERT INTO nom_de_table (nom_de_colonne1, nom de colonne2, ...) VALUES (valeur1,valeur2,...); // Le nombre de colonne doit être égal au nombre de valeur.
+	INSERT INTO nom_de_table (nom_de_colonne1, nom de colonne2, ...) VALUES (valeur1,valeur2,...); # Le nombre de colonne doit être égal au nombre de valeur.
 	```
 - Afficher toutes les valeurs d'une colonne spécifique :
 	```bash
@@ -99,15 +104,9 @@ Ce projet utilise une structure d’arbre binaire pour organiser les tables et l
 Le projet est organisé comme suit :
 
 ```.
-├── database/          
+├── database/             # Fichier .txt de Base de donnée |
 ├── src/                  # Code source |
-	├── main.c            # Point d'entrée du programme │
-	|── database.c        # Fonctions de gestion de la base de données │   
-	└── binary_tree.c     # Gestion de l'arbre binaire pour le stockage en mémoire |
 ├── include/              # Fichiers d'en-tête │   
-	├── database.h        # Déclarations pour la gestion de base de données │
-	└── binary_tree.h     # Déclarations pour l'arbre binaire 
-├── tests/                # Tests unitaires et de validation 
 └── README.md
 ```
 
