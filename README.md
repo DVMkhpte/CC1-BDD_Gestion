@@ -1,6 +1,6 @@
 # Gestion de Base de Données en C avec Arbre Binaire
 
-Ce projet implémente un système de gestion de base de données (SGBD) en C, avec une structure de données en arbre binaire pour le stockage en mémoire, et une persistance des données via un fichier texte. Le projet permet de gérer des tables, des colonnes et des valeurs, et inclut des fonctionnalités pour les requêtes `SELECT`, `INSERT`,  `DELETE`, `CREATE TABLE`, `DROP`et `SHOW\.
+Ce projet implémente un système de gestion de base de données (SGBD) en C, avec une structure de données en arbre binaire pour le stockage en mémoire, et une persistance des données via un fichier texte. Le projet permet de gérer des tables, des colonnes et des valeurs, et inclut des fonctionnalités pour les requêtes `SELECT`, `INSERT`,  `DELETE`, `CREATE TABLE`, `DROP`et `SHOW`.
 
 ## Sommaire
 
@@ -9,9 +9,8 @@ Ce projet implémente un système de gestion de base de données (SGBD) en C, av
 - [Installation](#installation)
 - [Utilisation](#utilisation)
 - [Architecture](#architecture)
-- [Contribution](#contribution)
 - [Auteurs](#auteurs)
-- [Licence](#licence)
+
 
 ## Aperçu
 
